@@ -1,0 +1,104 @@
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "base-config",
+            "displayName": "Base config",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/bin/$env{CONFIGURATION}/$env{PLATFORM}",
+            "hidden": true
+        },
+        {
+            "name": "base-config-x64",
+            "displayName": "Base config x64",
+            "inherits": "base-config",
+            "environment": {
+                "PLATFORM": "x64",
+                "PATH": "C:/mingw64/bin"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "C:/mingw64/bin/gcc.exe",
+                "CMAKE_CXX_COMPILER": "C:/mingw64/bin/g++.exe"
+            },
+            "hidden": true
+        },
+        {
+            "name": "base-config-x86",
+            "displayName": "Base config x86",
+            "inherits": "base-config",
+            "environment": {
+                "PLATFORM": "x86",
+                "PATH": "C:/mingw32/bin"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "C:/mingw32/bin/gcc.exe",
+                "CMAKE_CXX_COMPILER": "C:/mingw32/bin/g++.exe"
+            },
+            "hidden": true
+        },
+
+        {
+            "name": "Debug x64",
+            "displayName": "Debug x64",
+            "inherits": "base-config-x64",
+            "environment": {
+                "CONFIGURATION": "Debug"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "Release x64",
+            "displayName": "Release x64",
+            "inherits": "base-config-x64",
+            "environment": {
+                "CONFIGURATION": "Release"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+
+        {
+            "name": "Debug x86",
+            "displayName": "Debug x86",
+            "inherits": "base-config-x86",
+            "environment": {
+                "CONFIGURATION": "Debug"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "Release x86",
+            "displayName": "Release x86",
+            "inherits": "base-config-x86",
+            "environment": {
+                "CONFIGURATION": "Release"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "Debug x64",
+            "configurePreset": "Debug x64"
+        },
+        {
+            "name": "Release x64",
+            "configurePreset": "Release x64"
+        },
+        {
+            "name": "Debug x86",
+            "configurePreset": "Debug x86"
+        },
+        {
+            "name": "Release x86",
+            "configurePreset": "Release x86"
+        }
+    ]
+}
