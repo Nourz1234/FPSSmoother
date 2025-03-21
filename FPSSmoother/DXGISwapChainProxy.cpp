@@ -125,7 +125,8 @@ HRESULT DXGISwapChainProxy::Present(UINT SyncInterval, UINT Flags)
     if (g_SetSyncInterval)
     {
         SyncInterval = g_SyncInterval;
-        Flags &= ~DXGI_PRESENT_ALLOW_TEARING;
+        if (g_SyncInterval > 0)
+            Flags &= ~DXGI_PRESENT_ALLOW_TEARING;
     }
     if (g_SetFPSLimit)
         syncFrame();
@@ -248,7 +249,8 @@ HRESULT DXGISwapChainProxy::Present1(UINT SyncInterval, UINT PresentFlags, const
         if (g_SetSyncInterval)
         {
             SyncInterval = g_SyncInterval;
-            PresentFlags &= ~DXGI_PRESENT_ALLOW_TEARING;
+            if (g_SyncInterval > 0)
+                PresentFlags &= ~DXGI_PRESENT_ALLOW_TEARING;
         }
         if (g_SetFPSLimit)
             syncFrame();

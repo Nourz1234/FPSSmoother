@@ -450,15 +450,14 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
         // SetAppCompatStringPointer is called before the dll is even loaded somehow?!?!? (WTF?)
         // it gets called before DllMain and before anything is loaded really, so the handling for it is a bit special.
         // the hooked function just saves the string passed to it and then it is passed to the real function here.
-        {
-            // SetAppCompatStringPointerProc *RealSetAppCompatStringPointer = (SetAppCompatStringPointerProc *)GetProcAddress2(DXGI_DLL_PATH, "SetAppCompatStringPointer");
-            // static char test[] = "ForceWARP=1;DisableMaximizedWindowedFullscreen=1;DisableMaximizedWindowedUpgrades=1;Hybrid=0;LowVidMemCap=1;EnableGraphicsPerfMonitor=0;DisableVrrSyncIntervalOverride=1";
-            // RealSetAppCompatStringPointer(sizeof(test), test);
-        }
         if (g_CchAppCompatString)
         {
             SetAppCompatStringPointerProc *RealSetAppCompatStringPointer = (SetAppCompatStringPointerProc *)GetProcAddress2(DXGI_DLL_PATH, "SetAppCompatStringPointer");
             RealSetAppCompatStringPointer(g_CchAppCompatString, g_AppCompatString);
+            // {
+            //     static char test[] = "ForceWARP=0;DisableMaximizedWindowedFullscreen=1;DisableMaximizedWindowedUpgrades=1;Hybrid=0;LowVidMemCap=0;EnableGraphicsPerfMonitor=0;DisableVrrSyncIntervalOverride=1";
+            //     RealSetAppCompatStringPointer(sizeof(test), test);
+            // }
         }
 
         g_D3D11CreateDevice_UndoPatch = PatchAddress((LPVOID)D3D11CreateDevice, (LPVOID)FakeD3D11CreateDevice);
