@@ -106,6 +106,7 @@ T* GetProxyFor(T* instance)
         debug(L"-> Stahp!");
         return instance;
     }
+
     TProxy* proxy = nullptr;
     HRESULT hr = instance->QueryInterface(IID_GetSelf, (void**)&proxy);
     if (SUCCEEDED(hr))
@@ -113,6 +114,7 @@ T* GetProxyFor(T* instance)
         debug(L"-> Self");
         return proxy;
     }
+
     if (g_NumProxies >= 5000)
     {
         debug(L"-> Warning: Exceeded max proxy objects!");

@@ -269,7 +269,8 @@ BOOL DXGISwapChainProxy::IsTemporaryMonoSupported(void)
 
 HRESULT DXGISwapChainProxy::GetRestrictToOutput(IDXGIOutput **ppRestrictToOutput)
 {
-    return _swapChain1->GetRestrictToOutput(ppRestrictToOutput);
+    if (_swapChain1)
+        return _swapChain1->GetRestrictToOutput(ppRestrictToOutput);
     return E_NOTIMPL;
 }
 
