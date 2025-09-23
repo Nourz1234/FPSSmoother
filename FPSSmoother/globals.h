@@ -24,7 +24,6 @@ extern bool g_SetFPSLimit;
 extern int g_FPSLimit;
 
 extern bool g_DXGIHooking;
-extern bool g_D3D11Hooking;
 
 extern int g_StahpBruh;
 extern int g_DbgLevel;

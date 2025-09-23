@@ -61,24 +61,3 @@ set_target_properties(FakeDxgi PROPERTIES OUTPUT_NAME dxgi)
 target_link_options(FakeDxgi PRIVATE -Wl,--kill-at)
 
 
-# FakeD3d11
-add_library(FakeD3d11 SHARED
-    FakeD3d11/main.h
-    FakeD3d11/main.cpp
-    FakeD3d11/d3d11.def
-)
-target_include_directories(FakeD3d11 PRIVATE
-    ./
-    ../PatchJmp
-)
-target_link_libraries(FakeD3d11
-    ${PROJECT_NAME}
-    dxgi
-    d3d11
-    Shlwapi
-    PatchJmp
-)
-set_target_properties(FakeD3d11 PROPERTIES PREFIX "") # remove "lib" prefix
-set_target_properties(FakeD3d11 PROPERTIES OUTPUT_NAME d3d11)
-target_link_options(FakeD3d11 PRIVATE -Wl,--kill-at)
-

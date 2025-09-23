@@ -156,23 +156,14 @@ HRESULT DXGIFactoryProxy::CreateSwapChain(IUnknown *pDevice, DXGI_SWAP_CHAIN_DES
             pDesc->Windowed);
         debug(L"-> BufferCount: %d SwapEffect: %s", pDesc->BufferCount, SwapChainSwapEffectToStr(pDesc->SwapEffect));
         debug(L"-> Flags: %s", SwapChainFlagsToStr(pDesc->Flags));
-#ifdef DEBUG_BUILD
+
+        IDXGISwapChain2 *swapChain1;
+        hr = (*ppSwapChain)->QueryInterface(&swapChain1);
+        if (SUCCEEDED(hr))
         {
-            IDXGIDevice1 *d;
-            HRESULT hr = pDevice->QueryInterface(&d);
-            if (SUCCEEDED(hr))
-            {
-                UINT latency = 0;
-                d->GetMaximumFrameLatency(&latency);
-                debug(L"-> Latency: %d", latency);
-                d->Release();
-            }
-            else
-            {
-                debug(L"-> Warn: Failed to query IDXGIDevice1. HR: %X", hr);
-            }
+            swapChain1->SetMaximumFrameLatency(g_MaximumFrameLatency);
+            swapChain1->Release();
         }
-#endif
 
         *ppSwapChain = GetProxyFor<DXGISwapChainProxy>(*ppSwapChain);
     }
@@ -286,19 +277,14 @@ HRESULT DXGIFactoryProxy::CreateSwapChainForHwnd(IUnknown *pDevice, HWND hWnd, c
                 pFullscreenDesc->Windowed);
             debug(L"-> BufferCount: %d SwapEffect: %s", pDesc->BufferCount, SwapChainSwapEffectToStr(pDesc->SwapEffect));
             debug(L"-> Flags: %s", SwapChainFlagsToStr(pDesc->Flags));
-#ifdef DEBUG_BUILD
+
+            IDXGISwapChain2 *swapChain1;
+            hr = (*ppSwapChain)->QueryInterface(&swapChain1);
+            if (SUCCEEDED(hr))
             {
-                IDXGIDevice1 *d;
-                HRESULT hr = pDevice->QueryInterface(&d);
-                if (SUCCEEDED(hr))
-                {
-                    UINT latency = 0;
-                    d->GetMaximumFrameLatency(&latency);
-                    debug(L"-> Latency: %d", latency);
-                    d->Release();
-                }
+                swapChain1->SetMaximumFrameLatency(g_MaximumFrameLatency);
+                swapChain1->Release();
             }
-#endif
 
             *ppSwapChain = GetProxyFor<DXGISwapChainProxy>(*ppSwapChain);
         }

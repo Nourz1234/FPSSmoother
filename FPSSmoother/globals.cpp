@@ -17,7 +17,6 @@ bool g_SetFPSLimit = false;
 int g_FPSLimit = 60;
 
 bool g_DXGIHooking = true;
-bool g_D3D11Hooking = false;
 
 int g_StahpBruh = 0;
 int g_DbgLevel = 0;

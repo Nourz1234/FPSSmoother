@@ -67,7 +67,6 @@ HRESULT WINAPI CreateDXGIFactory(REFIID riid, _Out_ void **ppFactory)
         }
     }
     return hr;
-    // return RealCreateDXGIFactory(riid, ppFactory);
 }
 
 typedef HRESULT WINAPI CreateDXGIFactory1Proc(REFIID riid, _Out_ void **ppFactory);
@@ -92,7 +91,6 @@ HRESULT WINAPI CreateDXGIFactory1(REFIID riid, _Out_ void **ppFactory)
         }
     }
     return hr;
-    // return RealCreateDXGIFactory1(riid, ppFactory);
 }
 
 typedef HRESULT WINAPI CreateDXGIFactory2Proc(UINT Flags, REFIID riid, _Out_ void **ppFactory);
@@ -118,7 +116,6 @@ HRESULT WINAPI CreateDXGIFactory2(UINT Flags, REFIID riid, _Out_ void **ppFactor
         }
     }
     return hr;
-    // return RealCreateDXGIFactory2(Flags, riid, ppFactory);
 }
 
 typedef HRESULT WINAPI DXGIGetDebugInterface1Proc(UINT Flags, REFIID riid, _Out_ void **ppFactory);
@@ -130,74 +127,6 @@ HRESULT WINAPI DXGIGetDebugInterface1(UINT Flags, REFIID riid, _Out_ void **ppFa
     static DXGIGetDebugInterface1Proc *RealDXGIGetDebugInterface1 = (DXGIGetDebugInterface1Proc *)GetProcAddress2(DXGI_DLL_PATH, "DXGIGetDebugInterface1");
 
     return RealDXGIGetDebugInterface1(Flags, riid, ppFactory);
-}
-
-// d3d11 patching
-
-undo_patch *g_D3D11CreateDevice_UndoPatch;
-
-HRESULT WINAPI FakeD3D11CreateDevice(
-    _In_opt_ IDXGIAdapter *pAdapter,
-    D3D_DRIVER_TYPE DriverType,
-    HMODULE Software,
-    UINT Flags,
-    _In_reads_opt_(FeatureLevels) CONST D3D_FEATURE_LEVEL *pFeatureLevels,
-    UINT FeatureLevels,
-    UINT SDKVersion,
-    _Out_opt_ ID3D11Device **ppDevice,
-    _Out_opt_ D3D_FEATURE_LEVEL *pFeatureLevel,
-    _Out_opt_ ID3D11DeviceContext **ppImmediateContext)
-{
-    inc_dbg_level(L"D3D11CreateDevice");
-
-    UndoPatch(g_D3D11CreateDevice_UndoPatch);
-
-    g_StahpBruh++;
-    HRESULT hr = D3D11CreateDevice(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext);
-    g_StahpBruh--;
-    if (SUCCEEDED(hr) && g_D3D11Hooking)
-    {
-        if (ppDevice && *ppDevice)
-            *ppDevice = GetProxyFor<D3D11DeviceProxy>(*ppDevice);
-    }
-
-    g_D3D11CreateDevice_UndoPatch = PatchAddress((LPVOID)D3D11CreateDevice, (LPVOID)FakeD3D11CreateDevice);
-    return hr;
-}
-
-undo_patch *g_D3D11CreateDeviceAndSwapChain_UndoPatch;
-
-HRESULT WINAPI FakeD3D11CreateDeviceAndSwapChain(
-    _In_opt_ IDXGIAdapter *pAdapter,
-    D3D_DRIVER_TYPE DriverType,
-    HMODULE Software,
-    UINT Flags,
-    _In_reads_opt_(FeatureLevels) CONST D3D_FEATURE_LEVEL *pFeatureLevels,
-    UINT FeatureLevels,
-    UINT SDKVersion,
-    _In_opt_ CONST DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
-    _Out_opt_ IDXGISwapChain **ppSwapChain,
-    _Out_opt_ ID3D11Device **ppDevice,
-    _Out_opt_ D3D_FEATURE_LEVEL *pFeatureLevel,
-    _Out_opt_ ID3D11DeviceContext **ppImmediateContext)
-{
-    inc_dbg_level(L"D3D11CreateDeviceAndSwapChain");
-
-    UndoPatch(g_D3D11CreateDeviceAndSwapChain_UndoPatch);
-
-    g_StahpBruh++;
-    HRESULT hr = D3D11CreateDeviceAndSwapChain(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, pSwapChainDesc, ppSwapChain, ppDevice, pFeatureLevel, ppImmediateContext);
-    g_StahpBruh--;
-    if (SUCCEEDED(hr) && g_D3D11Hooking)
-    {
-        if (ppDevice && *ppDevice)
-            *ppDevice = GetProxyFor<D3D11DeviceProxy>(*ppDevice);
-        if (ppSwapChain && *ppSwapChain)
-            *ppSwapChain = GetProxyFor<DXGISwapChainProxy>(*ppSwapChain);
-    }
-
-    g_D3D11CreateDeviceAndSwapChain_UndoPatch = PatchAddress((LPVOID)D3D11CreateDeviceAndSwapChain, (LPVOID)FakeD3D11CreateDeviceAndSwapChain);
-    return hr;
 }
 
 // d3d12 patching
@@ -434,17 +363,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
             debug(L"DXGIHoohking: On");
         }
 
-        if (lstrcmpi(sD3D11Hooking.c_str(), L"On") == 0)
-        {
-            g_D3D11Hooking = true;
-            debug(L"D3D11Hoohking: On");
-        }
-        else
-        {
-            g_D3D11Hooking = false;
-            debug(L"D3D11Hoohking: Off");
-        }
-
         // this is important as without this, compatibility options are not passed to the app!
         // eg. "Disabled fullscreen optimizations" (and possibly other compatibility options) won't work.
         // SetAppCompatStringPointer is called before the dll is even loaded somehow?!?!? (WTF?)
@@ -459,9 +377,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
             //     RealSetAppCompatStringPointer(sizeof(test), test);
             // }
         }
-
-        g_D3D11CreateDevice_UndoPatch = PatchAddress((LPVOID)D3D11CreateDevice, (LPVOID)FakeD3D11CreateDevice);
-        g_D3D11CreateDeviceAndSwapChain_UndoPatch = PatchAddress((LPVOID)D3D11CreateDeviceAndSwapChain, (LPVOID)FakeD3D11CreateDeviceAndSwapChain);
 
         // g_D3D12CreateDevice_UndoPatch = PatchAddress(D3D12CreateDevice, FakeD3D12CreateDevice);
         break;

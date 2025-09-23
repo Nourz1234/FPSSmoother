@@ -152,7 +152,7 @@ void DXGIAdapterProxy::UnregisterHardwareContentProtectionTeardownStatus(DWORD d
 
 HRESULT DXGIAdapterProxy::QueryVideoMemoryInfo(UINT NodeIndex, DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup, DXGI_QUERY_VIDEO_MEMORY_INFO * pVideoMemoryInfo)
 {
-    inc_dbg_level(L"DXGIAdapterProxy::QueryVideoMemoryInfo");
+    // inc_dbg_level(L"DXGIAdapterProxy::QueryVideoMemoryInfo");
 
     if (_adapter3)
         return _adapter3->QueryVideoMemoryInfo(NodeIndex, MemorySegmentGroup, pVideoMemoryInfo);

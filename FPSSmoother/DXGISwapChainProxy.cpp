@@ -66,6 +66,8 @@ HRESULT DXGISwapChainProxy::QueryInterface(REFIID riid, void **ppvObject)
         proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain>(riid, ppvObject);
         proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain1>(riid, ppvObject);
         proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain2>(riid, ppvObject);
+        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain3>(riid, ppvObject);
+        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain4>(riid, ppvObject);
         proxyHelper.AndThankYou(riid, ppvObject);
     }
 
@@ -354,5 +356,44 @@ HRESULT DXGISwapChainProxy::GetMatrixTransform(DXGI_MATRIX_3X2_F *pMatrix)
 {
     if (_swapChain2)
         return _swapChain2->GetMatrixTransform(pMatrix);
+    return E_NOTIMPL;
+}
+
+UINT DXGISwapChainProxy::GetCurrentBackBufferIndex(void)
+{
+    if (_swapChain3)
+        return _swapChain3->GetCurrentBackBufferIndex();
+    return 0;
+}
+
+HRESULT DXGISwapChainProxy::CheckColorSpaceSupport(DXGI_COLOR_SPACE_TYPE ColorSpace, UINT *pColorSpaceSupport)
+{
+    if (_swapChain3)
+        return _swapChain3->CheckColorSpaceSupport(ColorSpace, pColorSpaceSupport);
+    return E_NOTIMPL;
+}
+
+HRESULT DXGISwapChainProxy::SetColorSpace1(DXGI_COLOR_SPACE_TYPE ColorSpace)
+{
+    if (_swapChain3)
+        return _swapChain3->SetColorSpace1(ColorSpace);
+    return E_NOTIMPL;
+}
+
+HRESULT DXGISwapChainProxy::ResizeBuffers1(UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT Format, UINT SwapChainFlags, const UINT *pCreationNodeMask, IUnknown *const *ppPresentQueue)
+{
+    inc_dbg_level(L"DXGISwapChainProxy::ResizeBuffers1");
+    if (_swapChain3)
+    {
+        debug(L"-> BufferCount: %d Size: %dx%d", BufferCount, Width, Height);
+        return _swapChain3->ResizeBuffers1(BufferCount, Width, Height, Format, SwapChainFlags, pCreationNodeMask, ppPresentQueue);
+    }
+    return E_NOTIMPL;
+}
+
+HRESULT DXGISwapChainProxy::SetHDRMetaData(DXGI_HDR_METADATA_TYPE Type, UINT Size, void *pMetaData)
+{
+    if (_swapChain4)
+        return _swapChain4->SetHDRMetaData(Type, Size, pMetaData);
     return E_NOTIMPL;
 }
