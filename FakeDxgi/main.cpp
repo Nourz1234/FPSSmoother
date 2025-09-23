@@ -355,12 +355,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
         if (lstrcmpi(sDXGIHooking.c_str(), L"Off") == 0)
         {
             g_DXGIHooking = false;
-            debug(L"DXGIHoohking: Off");
+            debug(L"DXGIHooking: Off");
         }
         else
         {
             g_DXGIHooking = true;
-            debug(L"DXGIHoohking: On");
+            debug(L"DXGIHooking: On");
         }
 
         // this is important as without this, compatibility options are not passed to the app!
