@@ -8,9 +8,9 @@
             "name": "(gdb) Attach",
             "type": "cppdbg",
             "request": "attach",
-            "program": "D:/Games/Crysis 2/bin32/Crysis2.exe",
+            "program": "E:/Games/Crysis Remastered/Bin64/CrysisRemastered.exe",
             "MIMode": "gdb",
-            "miDebuggerPath": "C:/mingw32/bin/gdb.exe",
+            "miDebuggerPath": "C:/mingw64/bin/gdb.exe",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

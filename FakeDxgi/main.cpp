@@ -80,15 +80,8 @@ HRESULT WINAPI CreateDXGIFactory1(REFIID riid, _Out_ void **ppFactory)
     HRESULT hr = RealCreateDXGIFactory1(riid, ppFactory);
     if (SUCCEEDED(hr) && g_DXGIHooking)
     {
-        // we want to ensure that we have the correct riid because the system can pass in other values
-        if (IsEqualIID(riid, __uuidof(IDXGIFactory1)))
-        {
-            *ppFactory = GetProxyFor<DXGIFactoryProxy>((IDXGIFactory1 *)*ppFactory);
-        }
-        else
-        {
-            debug(L"-> Internal system call. Ignoring.");
-        }
+        IDXGIFactory *pTempFactory = GetProxyFor<DXGIFactoryProxy>((IDXGIFactory1 *)*ppFactory);
+        hr = pTempFactory->QueryInterface(riid, ppFactory);
     }
     return hr;
 }
@@ -105,14 +98,16 @@ HRESULT WINAPI CreateDXGIFactory2(UINT Flags, REFIID riid, _Out_ void **ppFactor
 
     if (SUCCEEDED(hr) && g_DXGIHooking)
     {
-        // we want to ensure that we have the correct riid because the system can pass in other values
-        if (IsEqualIID(riid, __uuidof(IDXGIFactory2)))
+        // the only valid flag in the docs is DXGI_CREATE_FACTORY_DEBUG
+        // anything else indicates an internal system call
+        if ((Flags & ~DXGI_CREATE_FACTORY_DEBUG) != 0)
         {
-            *ppFactory = GetProxyFor<DXGIFactoryProxy>((IDXGIFactory2 *)*ppFactory);
+            debug(L"-> Internal system call. Ignoring.");
         }
         else
         {
-            debug(L"-> Internal system call. Ignoring.");
+            IDXGIFactory *pTempFactory = GetProxyFor<DXGIFactoryProxy>((IDXGIFactory2 *)*ppFactory);
+            hr = pTempFactory->QueryInterface(riid, ppFactory);
         }
     }
     return hr;

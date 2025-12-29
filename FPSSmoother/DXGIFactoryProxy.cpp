@@ -83,8 +83,8 @@ HRESULT DXGIFactoryProxy::EnumAdapters(UINT Adapter, IDXGIAdapter **ppAdapter)
 
     // HRESULT hr = _factory->EnumAdapters(Adapter, ppAdapter);
     // if (SUCCEEDED(hr))
-    //{
-    //	*ppAdapter = static_cast<IDXGIAdapter*>(DXGIAdapterProxy::GetProxyFor(*ppAdapter));
+    // {
+    //     *ppAdapter = static_cast<IDXGIAdapter*>(GetProxyFor<DXGIAdapterProxy>(*ppAdapter));
     // }
     // return hr;
     return _factory->EnumAdapters(Adapter, ppAdapter);
