@@ -1,8 +1,5 @@
-#include "Util.h"
+#include "utils.h"
 #include <pathcch.h>
-
-#pragma comment(lib, "Pathcch.lib")
-
 
 #ifdef DEBUG_BUILD
 
@@ -44,3 +41,13 @@ void fdebug(std::wstring str)
 #endif // DEBUG_BUILD
 
 
+
+FARPROC GetProcAddress2(LPCSTR dllName, LPCSTR funcName)
+{
+    HMODULE hMod = GetModuleHandleA(dllName);
+    if (!hMod)
+    {
+        hMod = LoadLibraryA(dllName);
+    }
+    return GetProcAddress(hMod, funcName);
+}

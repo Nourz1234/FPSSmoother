@@ -1,7 +1,7 @@
 #include "D3D11DeviceProxy.h"
 #include "DXGIDeviceProxy.h"
-#include "Util.h"
-#include "globals.h"
+#include "../globals.h"
+#include "../utils.h"
 
 HRESULT D3D11DeviceProxy::QueryInterface(REFIID riid, void ** ppvObject)
 {
@@ -23,7 +23,6 @@ HRESULT D3D11DeviceProxy::QueryInterface(REFIID riid, void ** ppvObject)
         proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D11DeviceProxy, ID3D11Device3>(riid, ppvObject);
         proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D11DeviceProxy, ID3D11Device4>(riid, ppvObject);
         proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D11DeviceProxy, ID3D11Device5>(riid, ppvObject);
-        //proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIDeviceProxy, IDXGIObject>(riid, ppvObject);
         proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIDeviceProxy, IDXGIDevice>(riid, ppvObject);
         proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIDeviceProxy, IDXGIDevice1>(riid, ppvObject);
         proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIDeviceProxy, IDXGIDevice2>(riid, ppvObject);

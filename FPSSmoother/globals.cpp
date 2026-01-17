@@ -16,8 +16,6 @@ bool g_AllowTearing = true;
 bool g_SetFPSLimit = false;
 int g_FPSLimit = 60;
 
-bool g_DXGIHooking = true;
-
 int g_StahpBruh = 0;
 int g_DbgLevel = 0;
 int g_NumProxies = 0;

@@ -8,7 +8,7 @@
             "name": "(gdb) Attach",
             "type": "cppdbg",
             "request": "attach",
-            "program": "E:/Games/Crysis Remastered/Bin64/CrysisRemastered.exe",
+            "program": "E:/Games/Dying Light - The Beast/ph_ft/work/bin/x64/DyingLightGame_TheBeast_x64_rwdi.exe",
             "MIMode": "gdb",
             "miDebuggerPath": "C:/mingw64/bin/gdb.exe",
             "setupCommands": [

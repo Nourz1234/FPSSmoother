@@ -1,6 +1,5 @@
 #pragma once
 #include <dxgi1_6.h>
-#include "Util.h"
 
 class DXGISwapChainProxy : public IDXGISwapChain4
 {
@@ -9,6 +8,9 @@ class DXGISwapChainProxy : public IDXGISwapChain4
     IDXGISwapChain2 *_swapChain2 = nullptr;
     IDXGISwapChain3 *_swapChain3 = nullptr;
     IDXGISwapChain4 *_swapChain4 = nullptr;
+
+    bool _handleD3D12MaximumFrameLatency = false;
+    HANDLE _frameLatencyWaitHandle = NULL;
 
 public:
     DXGISwapChainProxy(IDXGISwapChain *swapChain) : _swapChain(swapChain)
@@ -26,6 +28,9 @@ public:
     DXGISwapChainProxy(IDXGISwapChain4 *swapChain) : _swapChain(swapChain), _swapChain1(swapChain), _swapChain2(swapChain), _swapChain3(swapChain), _swapChain4(swapChain)
     {
     }
+
+    void EnableD3D12MaximumFrameLatencyHandling();
+    void ApplyMaximumFrameLatency();
 
     // Inherited via IDXGISwapChain2
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;

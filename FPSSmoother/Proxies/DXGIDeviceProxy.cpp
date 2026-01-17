@@ -2,8 +2,8 @@
 #include "DXGIDeviceProxy.h"
 #include "DXGIFactoryProxy.h"
 #include "DXGIAdapterProxy.h"
-#include "Util.h"
-#include "globals.h"
+#include "../globals.h"
+#include "../utils.h"
 
 HRESULT DXGIDeviceProxy::QueryInterface(REFIID riid, void **ppvObject)
 {
@@ -82,15 +82,14 @@ HRESULT DXGIDeviceProxy::GetParent(REFIID riid, void **ppParent)
 
 HRESULT DXGIDeviceProxy::GetAdapter(IDXGIAdapter **pAdapter)
 {
-    // inc_dbg_level(L"DXGIDeviceProxy::GetAdapter");
+    inc_dbg_level(L"DXGIDeviceProxy::GetAdapter");
 
-    // HRESULT hr = _device->GetAdapter(pAdapter);
+    HRESULT hr = _device->GetAdapter(pAdapter);
     // if (SUCCEEDED(hr))
-    //{
-    //	*pAdapter = DXGIAdapterProxy::GetProxyFor(*pAdapter);
+    // {
+    //     *pAdapter = GetProxyFor<DXGIAdapterProxy>(*pAdapter);
     // }
-    // return hr;
-    return _device->GetAdapter(pAdapter);
+    return hr;
 }
 
 HRESULT DXGIDeviceProxy::CreateSurface(const DXGI_SURFACE_DESC *pDesc, UINT NumSurfaces, DXGI_USAGE Usage, const DXGI_SHARED_RESOURCE *pSharedResource, IDXGISurface **ppSurface)

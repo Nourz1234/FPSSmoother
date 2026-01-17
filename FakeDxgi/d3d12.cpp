@@ -1,0 +1,36 @@
+#include "FPSSmoother/utils.h"
+#include "PatchJmp/PatchJmp.h"
+
+#include <Windows.h>
+#include <pathcch.h>
+#include <d3d12.h>
+
+#define D3D12_DLL_PATH "C:\\Windows\\System32\\d3d12.dll"
+
+// d3d12 patching
+using D3D12CreateDeviceProc = decltype(&D3D12CreateDevice);
+D3D12CreateDeviceProc D3D12CreateDeviceReal = nullptr;
+undo_patch *g_D3D12CreateDevice_UndoPatch;
+
+HRESULT WINAPI FakeD3D12CreateDevice(
+    IUnknown *pAdapter,
+    D3D_FEATURE_LEVEL MinimumFeatureLevel,
+    REFIID riid,
+    void **ppDevice)
+{
+    inc_dbg_level(L"FakeD3D12CreateDevice");
+
+    UndoPatch(g_D3D12CreateDevice_UndoPatch);
+
+    HRESULT hr = D3D12CreateDeviceReal(pAdapter, MinimumFeatureLevel, riid, ppDevice);
+
+    g_D3D12CreateDevice_UndoPatch = PatchAddress((LPVOID)D3D12CreateDeviceReal, (LPVOID)FakeD3D12CreateDevice);
+    return hr;
+}
+
+void PatchD3D12()
+{
+    D3D12CreateDeviceReal = (D3D12CreateDeviceProc)GetProcAddress2(D3D12_DLL_PATH, "D3D12CreateDevice");
+
+    g_D3D12CreateDevice_UndoPatch = PatchAddress((LPVOID)D3D12CreateDeviceReal, (LPVOID)FakeD3D12CreateDevice);
+}

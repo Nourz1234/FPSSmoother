@@ -1,0 +1,1 @@
+void PatchD3D11();

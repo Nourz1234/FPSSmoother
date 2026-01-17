@@ -3,8 +3,8 @@
 #include "DXGIFactoryProxy.h"
 #include "DXGISwapChainProxy.h"
 #include "DXGIAdapterProxy.h"
-#include "Util.h"
-#include "globals.h"
+#include "../globals.h"
+#include "../utils.h"
 
 HRESULT DXGIFactoryProxy::QueryInterface(REFIID riid, void **ppvObject)
 {
@@ -81,13 +81,12 @@ HRESULT DXGIFactoryProxy::EnumAdapters(UINT Adapter, IDXGIAdapter **ppAdapter)
 {
     inc_dbg_level(L"DXGIFactoryProxy::EnumAdapters");
 
-    // HRESULT hr = _factory->EnumAdapters(Adapter, ppAdapter);
+    HRESULT hr = _factory->EnumAdapters(Adapter, ppAdapter);
     // if (SUCCEEDED(hr))
     // {
-    //     *ppAdapter = static_cast<IDXGIAdapter*>(GetProxyFor<DXGIAdapterProxy>(*ppAdapter));
+    //     *ppAdapter = static_cast<IDXGIAdapter *>(GetProxyFor<DXGIAdapterProxy>(*ppAdapter));
     // }
-    // return hr;
-    return _factory->EnumAdapters(Adapter, ppAdapter);
+    return hr;
 }
 
 HRESULT DXGIFactoryProxy::MakeWindowAssociation(HWND WindowHandle, UINT Flags)
@@ -104,17 +103,14 @@ HRESULT DXGIFactoryProxy::CreateSwapChain(IUnknown *pDevice, DXGI_SWAP_CHAIN_DES
 {
     inc_dbg_level(L"DXGIFactoryProxy::CreateSwapChain");
 
-    // if (g_StahpBruh)
-    // {
-    //     debug(L"-> Stahp!");
-    //     return _factory->CreateSwapChain(pDevice, pDesc, ppSwapChain);
-    // }
+    bool isD3D12 = false;
+    bool handleD3D12MaximumFrameLatency = false;
 
-    ID3D12CommandQueue *d3d12CommandQueue;
+    ID3D12CommandQueue *d3d12CommandQueue = nullptr;
     pDevice->QueryInterface(&d3d12CommandQueue);
     if (d3d12CommandQueue)
     {
-        debug(L"-> D3D12 detected!");
+        isD3D12 = true;
         d3d12CommandQueue->Release();
     }
 
@@ -126,13 +122,20 @@ HRESULT DXGIFactoryProxy::CreateSwapChain(IUnknown *pDevice, DXGI_SWAP_CHAIN_DES
         pDesc->SwapEffect = g_SwapEffect;
     if (g_SetMaximumFrameLatency)
     {
-        IDXGIDevice1 *pDXGIDevice;
-        HRESULT hr = pDevice->QueryInterface(&pDXGIDevice);
-        if (SUCCEEDED(hr))
+        if (isD3D12 && (pDesc->Flags & DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT) == 0)
         {
-            pDXGIDevice->SetMaximumFrameLatency(g_MaximumFrameLatency);
-
-            pDXGIDevice->Release();
+            handleD3D12MaximumFrameLatency = true;
+            pDesc->Flags |= DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+        }
+        else
+        {
+            IDXGIDevice1 *pDXGIDevice;
+            HRESULT hr = pDevice->QueryInterface(&pDXGIDevice);
+            if (SUCCEEDED(hr))
+            {
+                pDXGIDevice->SetMaximumFrameLatency(g_MaximumFrameLatency);
+                pDXGIDevice->Release();
+            }
         }
     }
     if (g_SetAllowTearing)
@@ -148,6 +151,7 @@ HRESULT DXGIFactoryProxy::CreateSwapChain(IUnknown *pDevice, DXGI_SWAP_CHAIN_DES
     g_StahpBruh--;
     if (SUCCEEDED(hr))
     {
+        debug(L"-> Is D3D12: %d", isD3D12);
         debug(
             L"-> Mode: %dx%d RefreshRate: %d Windowed: %d",
             pDesc->BufferDesc.Width,
@@ -157,30 +161,22 @@ HRESULT DXGIFactoryProxy::CreateSwapChain(IUnknown *pDevice, DXGI_SWAP_CHAIN_DES
         debug(L"-> BufferCount: %d SwapEffect: %s", pDesc->BufferCount, SwapChainSwapEffectToStr(pDesc->SwapEffect));
         debug(L"-> Flags: %s", SwapChainFlagsToStr(pDesc->Flags));
 
-        IDXGISwapChain2 *swapChain1;
-        hr = (*ppSwapChain)->QueryInterface(&swapChain1);
-        if (SUCCEEDED(hr))
-        {
-            swapChain1->SetMaximumFrameLatency(g_MaximumFrameLatency);
-            swapChain1->Release();
-        }
-
         *ppSwapChain = GetProxyFor<DXGISwapChainProxy>(*ppSwapChain);
+        if (g_SetMaximumFrameLatency && isD3D12)
+        {
+            if (handleD3D12MaximumFrameLatency)
+                ((DXGISwapChainProxy *)*ppSwapChain)->EnableD3D12MaximumFrameLatencyHandling();
+            else
+                ((DXGISwapChainProxy *)*ppSwapChain)->ApplyMaximumFrameLatency();
+        }
     }
     return hr;
-    // return _factory->CreateSwapChain(pDevice, pDesc, ppSwapChain);
 }
 
 HRESULT DXGIFactoryProxy::CreateSoftwareAdapter(HMODULE Module, IDXGIAdapter **ppAdapter)
 {
     inc_dbg_level(L"DXGIFactoryProxy::CreateSoftwareAdapter");
 
-    // HRESULT hr = _factory->CreateSoftwareAdapter(Module, ppAdapter);
-    // if (SUCCEEDED(hr))
-    // {
-    //     *ppAdapter = GetProxyFor<DXGIAdapterProxy>(*ppAdapter);
-    // }
-    // return hr;
     return _factory->CreateSoftwareAdapter(Module, ppAdapter);
 }
 
@@ -190,13 +186,12 @@ HRESULT DXGIFactoryProxy::EnumAdapters1(UINT Adapter, IDXGIAdapter1 **ppAdapter)
 
     if (_factory1)
     {
-        // HRESULT hr = _factory1->EnumAdapters1(Adapter, ppAdapter);
-        // if (SUCCEEDED(hr))
-        // {
-        //     *ppAdapter = GetProxyFor<DXGIAdapterProxy>(*ppAdapter);
-        // }
-        // return hr;
-        return _factory1->EnumAdapters1(Adapter, ppAdapter);
+        HRESULT hr = _factory1->EnumAdapters1(Adapter, ppAdapter);
+        if (SUCCEEDED(hr))
+        {
+            *ppAdapter = GetProxyFor<DXGIAdapterProxy>(*ppAdapter);
+        }
+        return hr;
     }
 
     debug(L"Warning: Not implemented code path reached.");
@@ -231,11 +226,14 @@ HRESULT DXGIFactoryProxy::CreateSwapChainForHwnd(IUnknown *pDevice, HWND hWnd, c
 
     if (_factory2)
     {
-        ID3D12CommandQueue *d3d12CommandQueue;
+        bool isD3D12 = false;
+        bool handleD3D12MaximumFrameLatency = false;
+
+        ID3D12CommandQueue *d3d12CommandQueue = nullptr;
         pDevice->QueryInterface(&d3d12CommandQueue);
         if (d3d12CommandQueue)
         {
-            debug(L"-> D3D12 detected!");
+            isD3D12 = true;
             d3d12CommandQueue->Release();
         }
 
@@ -247,13 +245,20 @@ HRESULT DXGIFactoryProxy::CreateSwapChainForHwnd(IUnknown *pDevice, HWND hWnd, c
             ((DXGI_SWAP_CHAIN_DESC1 *)pDesc)->SwapEffect = g_SwapEffect;
         if (g_SetMaximumFrameLatency)
         {
-            IDXGIDevice1 *pDXGIDevice;
-            HRESULT hr = pDevice->QueryInterface(&pDXGIDevice);
-            if (SUCCEEDED(hr))
+            if (isD3D12 && (pDesc->Flags & DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT) == 0)
             {
-                pDXGIDevice->SetMaximumFrameLatency(g_MaximumFrameLatency);
-
-                pDXGIDevice->Release();
+                handleD3D12MaximumFrameLatency = true;
+                ((DXGI_SWAP_CHAIN_DESC1 *)pDesc)->Flags |= DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+            }
+            else
+            {
+                IDXGIDevice1 *pDXGIDevice;
+                HRESULT hr = pDevice->QueryInterface(&pDXGIDevice);
+                if (SUCCEEDED(hr))
+                {
+                    pDXGIDevice->SetMaximumFrameLatency(g_MaximumFrameLatency);
+                    pDXGIDevice->Release();
+                }
             }
         }
         if (g_SetAllowTearing)
@@ -269,24 +274,21 @@ HRESULT DXGIFactoryProxy::CreateSwapChainForHwnd(IUnknown *pDevice, HWND hWnd, c
         g_StahpBruh--;
         if (SUCCEEDED(hr))
         {
-            debug(
-                L"-> Mode: %dx%d RefreshRate: %d Windowed: %d",
-                pDesc->Width,
-                pDesc->Height,
-                pFullscreenDesc->RefreshRate.Numerator,
-                pFullscreenDesc->Windowed);
+            debug(L"-> Is D3D12: %d", isD3D12);
+            debug(L"-> Resolution: %dx%d ", pDesc->Width, pDesc->Height);
+            if (pFullscreenDesc)
+                debug(L"->RefreshRate: %d Windowed: %d", pFullscreenDesc->RefreshRate.Numerator, pFullscreenDesc->Windowed);
             debug(L"-> BufferCount: %d SwapEffect: %s", pDesc->BufferCount, SwapChainSwapEffectToStr(pDesc->SwapEffect));
             debug(L"-> Flags: %s", SwapChainFlagsToStr(pDesc->Flags));
 
-            IDXGISwapChain2 *swapChain1;
-            hr = (*ppSwapChain)->QueryInterface(&swapChain1);
-            if (SUCCEEDED(hr))
-            {
-                swapChain1->SetMaximumFrameLatency(g_MaximumFrameLatency);
-                swapChain1->Release();
-            }
-
             *ppSwapChain = GetProxyFor<DXGISwapChainProxy>(*ppSwapChain);
+            if (g_SetMaximumFrameLatency && isD3D12)
+            {
+                if (handleD3D12MaximumFrameLatency)
+                    ((DXGISwapChainProxy *)*ppSwapChain)->EnableD3D12MaximumFrameLatencyHandling();
+                else
+                    ((DXGISwapChainProxy *)*ppSwapChain)->ApplyMaximumFrameLatency();
+            }
         }
         return hr;
     }
@@ -439,21 +441,7 @@ HRESULT DXGIFactoryProxy::EnumAdapterByGpuPreference(UINT Adapter, DXGI_GPU_PREF
     inc_dbg_level(L"DXGIFactoryProxy::EnumAdapterByGpuPreference");
 
     if (_factory6)
-    {
-        HRESULT hr = _factory6->EnumAdapterByGpuPreference(Adapter, GpuPreference, riid, ppvAdapter);
-        if (SUCCEEDED(hr))
-        {
-            ProxyHelper proxyHelper;
-            proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter>(riid, ppvAdapter);
-            proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter1>(riid, ppvAdapter);
-            proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter2>(riid, ppvAdapter);
-            proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter3>(riid, ppvAdapter);
-            proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter4>(riid, ppvAdapter);
-            proxyHelper.AndThankYou(riid, ppvAdapter);
-        }
-
-        return hr;
-    }
+        return _factory6->EnumAdapterByGpuPreference(Adapter, GpuPreference, riid, ppvAdapter);
 
     debug(L"Warning: Not implemented code path reached.");
     return E_NOTIMPL;

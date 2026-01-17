@@ -1,5 +1,6 @@
 #include "DXGIOutputProxy.h"
-#include "Util.h"
+#include "../globals.h"
+#include "../utils.h"
 
 
 HRESULT DXGIOutputProxy::QueryInterface(REFIID riid, void ** ppvObject)

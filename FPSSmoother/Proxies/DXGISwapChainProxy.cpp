@@ -1,6 +1,6 @@
 #include "DXGISwapChainProxy.h"
-#include "Util.h"
-#include "globals.h"
+#include "../globals.h"
+#include "../utils.h"
 
 void nanosleep(LONGLONG ns)
 {
@@ -49,6 +49,32 @@ void syncFrame()
     }
 }
 
+void DXGISwapChainProxy::EnableD3D12MaximumFrameLatencyHandling()
+{
+    inc_dbg_level(L"DXGISwapChainProxy::EnableD3D12MaximumFrameLatencyHandling");
+    _handleD3D12MaximumFrameLatency = true;
+
+    IDXGISwapChain2 *swapChain2;
+    HRESULT hr = _swapChain->QueryInterface(&swapChain2);
+    if (SUCCEEDED(hr))
+    {
+        swapChain2->SetMaximumFrameLatency(g_MaximumFrameLatency);
+        _frameLatencyWaitHandle = swapChain2->GetFrameLatencyWaitableObject();
+        swapChain2->Release();
+    }
+}
+
+void DXGISwapChainProxy::ApplyMaximumFrameLatency()
+{
+    IDXGISwapChain2 *swapChain2;
+    HRESULT hr = _swapChain->QueryInterface(&swapChain2);
+    if (SUCCEEDED(hr))
+    {
+        swapChain2->SetMaximumFrameLatency(g_MaximumFrameLatency);
+        swapChain2->Release();
+    }
+}
+
 HRESULT DXGISwapChainProxy::QueryInterface(REFIID riid, void **ppvObject)
 {
     inc_dbg_level(L"DXGISwapChainProxy::QueryInterface");
@@ -69,6 +95,11 @@ HRESULT DXGISwapChainProxy::QueryInterface(REFIID riid, void **ppvObject)
         proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain3>(riid, ppvObject);
         proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain4>(riid, ppvObject);
         proxyHelper.AndThankYou(riid, ppvObject);
+        if (proxyHelper.UwU())
+        {
+            ((DXGISwapChainProxy *)*ppvObject)->_handleD3D12MaximumFrameLatency = _handleD3D12MaximumFrameLatency;
+            ((DXGISwapChainProxy *)*ppvObject)->_frameLatencyWaitHandle = _frameLatencyWaitHandle;
+        }
     }
 
     return hr;
@@ -133,7 +164,12 @@ HRESULT DXGISwapChainProxy::Present(UINT SyncInterval, UINT Flags)
     if (g_SetFPSLimit)
         syncFrame();
 
-    return _swapChain->Present(SyncInterval, Flags);
+    if (_frameLatencyWaitHandle)
+        WaitForSingleObjectEx(_frameLatencyWaitHandle, 0, TRUE);
+
+    HRESULT hr = _swapChain->Present(SyncInterval, Flags);
+
+    return hr;
 }
 
 HRESULT DXGISwapChainProxy::GetBuffer(UINT Buffer, REFIID riid, void **ppSurface)
@@ -172,8 +208,12 @@ HRESULT DXGISwapChainProxy::ResizeBuffers(UINT BufferCount, UINT Width, UINT Hei
         else
             SwapChainFlags &= ~DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
     }
+    if (_handleD3D12MaximumFrameLatency)
+        SwapChainFlags |= DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
-    debug(L"-> BufferCount: %d Size: %dx%d", BufferCount, Width, Height);
+    debug(L"-> BufferCount: %d", BufferCount);
+    debug(L"-> Size: %dx%d", Width, Height);
+    debug(L"-> Flags: %s", SwapChainFlagsToStr(SwapChainFlags));
     return _swapChain->ResizeBuffers(BufferCount, Width, Height, NewFormat, SwapChainFlags);
 }
 
@@ -257,7 +297,12 @@ HRESULT DXGISwapChainProxy::Present1(UINT SyncInterval, UINT PresentFlags, const
         if (g_SetFPSLimit)
             syncFrame();
 
-        return _swapChain1->Present1(SyncInterval, PresentFlags, pPresentParameters);
+        if (_frameLatencyWaitHandle)
+            WaitForSingleObjectEx(_frameLatencyWaitHandle, INFINITE, TRUE);
+
+        HRESULT hr = _swapChain1->Present1(SyncInterval, PresentFlags, pPresentParameters);
+
+        return hr;
     }
     return E_NOTIMPL;
 }
@@ -324,7 +369,11 @@ HRESULT DXGISwapChainProxy::SetMaximumFrameLatency(UINT MaxLatency)
 
     if (_swapChain2)
     {
+        if (g_SetMaximumFrameLatency)
+            MaxLatency = g_MaximumFrameLatency;
+
         debug(L"-> MaxLatency: %d", MaxLatency);
+
         return _swapChain2->SetMaximumFrameLatency(MaxLatency);
     }
 
@@ -385,7 +434,21 @@ HRESULT DXGISwapChainProxy::ResizeBuffers1(UINT BufferCount, UINT Width, UINT He
     inc_dbg_level(L"DXGISwapChainProxy::ResizeBuffers1");
     if (_swapChain3)
     {
-        debug(L"-> BufferCount: %d Size: %dx%d", BufferCount, Width, Height);
+        if (g_SetSwapChainBufferCount)
+            BufferCount = g_SwapChainBufferCount;
+        if (g_SetAllowTearing)
+        {
+            if (g_AllowTearing)
+                SwapChainFlags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+            else
+                SwapChainFlags &= ~DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+        }
+        if (_handleD3D12MaximumFrameLatency)
+            SwapChainFlags |= DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+
+        debug(L"-> BufferCount: %d", BufferCount);
+        debug(L"-> Size: %dx%d", Width, Height);
+        debug(L"-> Flags: %s", SwapChainFlagsToStr(SwapChainFlags));
         return _swapChain3->ResizeBuffers1(BufferCount, Width, Height, Format, SwapChainFlags, pCreationNodeMask, ppPresentQueue);
     }
     return E_NOTIMPL;

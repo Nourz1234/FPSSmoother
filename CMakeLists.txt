@@ -24,10 +24,13 @@ endif()
 add_link_options(-static)
 add_link_options(-Wl,--enable-stdcall-fixup)
 
-file(GLOB SOURCES
+# main lib
+file(GLOB_RECURSE SOURCES
     ${PROJECT_NAME}/*.cpp
     ${PROJECT_NAME}/*.h
 )
+add_library(${PROJECT_NAME} STATIC ${SOURCES})
+
 
 # PatchJmp lib
 add_library(PatchJmp STATIC
@@ -35,15 +38,13 @@ add_library(PatchJmp STATIC
     ../PatchJmp/PatchJmp/PatchJmp.cpp)
 
 
-# main lib
-add_library(${PROJECT_NAME} STATIC ${SOURCES})
-
-
-
 # FakeDxgi
+file(GLOB FAKEDXGI_SOURCES
+    FakeDxgi/*.h
+    FakeDxgi/*.cpp
+)
 add_library(FakeDxgi SHARED
-    FakeDxgi/main.h
-    FakeDxgi/main.cpp
+    ${FAKEDXGI_SOURCES}
     FakeDxgi/dxgi.def
 )
 target_include_directories(FakeDxgi PRIVATE
@@ -52,12 +53,9 @@ target_include_directories(FakeDxgi PRIVATE
 )
 target_link_libraries(FakeDxgi
     ${PROJECT_NAME}
-    d3d11
     Pathcch
     PatchJmp
 )
 set_target_properties(FakeDxgi PROPERTIES PREFIX "") # remove "lib" prefix
 set_target_properties(FakeDxgi PROPERTIES OUTPUT_NAME dxgi)
 target_link_options(FakeDxgi PRIVATE -Wl,--kill-at)
-
-

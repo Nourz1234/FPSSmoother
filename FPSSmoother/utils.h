@@ -5,19 +5,17 @@
 #include <string>
 #include <Windows.h>
 
-
 #ifdef DEBUG_BUILD
 
 #include <typeinfo>
 
-
-const char* GetMB(const wchar_t *wc);
-const wchar_t* GetWC(const char *c);
+const char *GetMB(const wchar_t *wc);
+const wchar_t *GetWC(const char *c);
 
 void fdebug(std::wstring str);
 
-template<typename... Args>
-void debug(const wchar_t* _Format, Args... args)
+template <typename... Args>
+void debug(const wchar_t *_Format, Args... args)
 {
     WCHAR buff[1024];
     swprintf_s(buff, _Format, args...);
@@ -86,7 +84,17 @@ __inline LPCWSTR SwapChainFlagsToStr(UINT Flags)
     swprintf_s(lpStr, str.c_str());
     return lpStr;
 }
-#define inc_dbg_level(msg) debug(msg); DbgLevel ll
+
+class DbgLevel
+{
+public:
+    DbgLevel() { g_DbgLevel += 1; }
+    ~DbgLevel() { g_DbgLevel -= 1; }
+};
+
+#define inc_dbg_level(msg) \
+    debug(msg);            \
+    DbgLevel ll
 
 #else
 
@@ -95,11 +103,9 @@ __inline LPCWSTR SwapChainFlagsToStr(UINT Flags)
 
 #endif
 
-
-
 // i don't love it but it will have to do for now.
-template<typename TProxy, typename T>
-T* GetProxyFor(T* instance)
+template <typename TProxy, typename T>
+T *GetProxyFor(T *instance)
 {
     if (g_StahpBruh)
     {
@@ -107,8 +113,8 @@ T* GetProxyFor(T* instance)
         return instance;
     }
 
-    TProxy* proxy = nullptr;
-    HRESULT hr = instance->QueryInterface(IID_GetSelf, (void**)&proxy);
+    TProxy *proxy = nullptr;
+    HRESULT hr = instance->QueryInterface(IID_GetSelf, (void **)&proxy);
     if (SUCCEEDED(hr))
     {
         debug(L"-> Self");
@@ -123,7 +129,7 @@ T* GetProxyFor(T* instance)
     g_NumProxies++;
 
     debug(L"-> %s", GetWC(typeid(T).name()));
-    return static_cast<T*>(new TProxy(instance));
+    return static_cast<T *>(new TProxy(instance));
 }
 
 class ProxyHelper
@@ -131,19 +137,19 @@ class ProxyHelper
     bool _proxyAttained = false;
 
 public:
-    template<typename TProxy, typename T>
-    __inline void TryGetProxyForThisInterfaceForMePwease(REFIID riid, void ** ppvObject)
+    template <typename TProxy, typename T>
+    __inline void TryGetProxyForThisInterfaceForMePwease(REFIID riid, void **ppvObject)
     {
         if (_proxyAttained)
             return;
         if (IsEqualIID(riid, __uuidof(T)))
         {
-            *ppvObject = GetProxyFor<TProxy>((T*)*ppvObject);
+            *ppvObject = GetProxyFor<TProxy>((T *)*ppvObject);
             _proxyAttained = true;
         }
     }
 
-    __inline void AndThankYou(REFIID riid, void ** ppvObject)
+    __inline void AndThankYou(REFIID riid, void **ppvObject)
     {
         if (!_proxyAttained)
         {
@@ -152,6 +158,8 @@ public:
             debug(L"-> [ProxyHelper] Sowwy not found: %s", pIID);
         }
     }
+
+    __inline bool UwU() { return _proxyAttained; }
 };
 
-
+FARPROC GetProcAddress2(LPCSTR dllName, LPCSTR funcName);

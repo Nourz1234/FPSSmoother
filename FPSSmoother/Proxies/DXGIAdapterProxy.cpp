@@ -1,7 +1,7 @@
 #include "DXGIAdapterProxy.h"
 #include "DXGIFactoryProxy.h"
-#include "Util.h"
-#include "globals.h"
+#include "../globals.h"
+#include "../utils.h"
 
 HRESULT DXGIAdapterProxy::QueryInterface(REFIID riid, void ** ppvObject)
 {

@@ -1,6 +1,5 @@
 #pragma once
 #include <dxgi1_6.h>
-#include "Util.h"
 
 class DXGIAdapterProxy : public IDXGIAdapter4
 {
