@@ -15,7 +15,7 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID lpvReserved)
     {
     case DLL_PROCESS_ATTACH:
     {
-#ifdef DEBUG_BUILD
+#ifdef DEBUG
         AllocConsole();
         FILE *oldStream = NULL;
         freopen_s(&oldStream, "CONOUT$", "w", stdout);

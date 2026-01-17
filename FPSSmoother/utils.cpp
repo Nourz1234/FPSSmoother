@@ -1,9 +1,9 @@
 #include "utils.h"
 #include <pathcch.h>
 
-#ifdef DEBUG_BUILD
+#ifdef DEBUG
 
-const char* GetMB(const wchar_t *wc)
+const char *GetMB(const wchar_t *wc)
 {
     static char c[1024];
     size_t numCharsConverted;
@@ -11,7 +11,7 @@ const char* GetMB(const wchar_t *wc)
     return c;
 }
 
-const wchar_t* GetWC(const char *c)
+const wchar_t *GetWC(const char *c)
 {
     static wchar_t wc[1024];
     size_t numCharsConverted;
@@ -21,7 +21,7 @@ const wchar_t* GetWC(const char *c)
 
 void fdebug(std::wstring str)
 {
-    static FILE* logFile = nullptr;
+    static FILE *logFile = nullptr;
     if (!logFile)
     {
         WCHAR logPath[MAX_PATH] = L"";
@@ -38,9 +38,7 @@ void fdebug(std::wstring str)
     }
 }
 
-#endif // DEBUG_BUILD
-
-
+#endif // DEBUG
 
 FARPROC GetProcAddress2(LPCSTR dllName, LPCSTR funcName)
 {

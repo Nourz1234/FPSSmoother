@@ -3,10 +3,7 @@
 #include <initguid.h>
 #include <guiddef.h>
 
-#define DEBUG_BUILD
-
 DEFINE_GUID(IID_GetSelf, 0x0fffffff, 0xffff, 0xffff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-
 
 extern bool g_SetSwapEffect;
 extern DXGI_SWAP_EFFECT g_SwapEffect;

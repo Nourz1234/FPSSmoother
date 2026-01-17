@@ -5,7 +5,7 @@
 #include <string>
 #include <Windows.h>
 
-#ifdef DEBUG_BUILD
+#ifdef DEBUG
 
 #include <typeinfo>
 
