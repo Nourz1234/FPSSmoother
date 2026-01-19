@@ -6,7 +6,7 @@
 #define DXGI_DLL_PATH "C:\\Windows\\System32\\dxgi.dll"
 
 size_t g_CchAppCompatString = 0;
-char g_AppCompatString[_MAX_ENV];
+char g_AppCompatString[_MAX_ENV]{};
 
 typedef void WINAPI SetAppCompatStringPointerProc(size_t cchString, const char *pszString);
 
@@ -103,13 +103,29 @@ void DXGIMain()
     // SetAppCompatStringPointer is called before the dll is even loaded somehow?!?!? (WTF?)
     // it gets called before DllMain and before anything is loaded really, so the handling for it is a bit special.
     // the hooked function just saves the string passed to it and then it is passed to the real function here.
+    std::string compatString;
     if (g_CchAppCompatString)
     {
+        compatString.append(g_AppCompatString, g_CchAppCompatString - 1);
+    }
+    if (g_SetFullscreenMode && g_FullscreenMode)
+    {
+        if (compatString.size() > 0)
+            compatString.append(";");
+        compatString.append("DisableMaximizedWindowedFullscreen=1;DisableMaximizedWindowedUpgrades=1");
+    }
+
+    if (compatString.size() > 0)
+    {
+        g_CchAppCompatString = compatString.size() + 1;
+        strcpy_s(g_AppCompatString, compatString.c_str());
+
         SetAppCompatStringPointerProc *RealSetAppCompatStringPointer = (SetAppCompatStringPointerProc *)GetProcAddress2(DXGI_DLL_PATH, "SetAppCompatStringPointer");
         RealSetAppCompatStringPointer(g_CchAppCompatString, g_AppCompatString);
-        // {
-        //     static char test[] = "ForceWARP=0;DisableMaximizedWindowedFullscreen=1;DisableMaximizedWindowedUpgrades=1;Hybrid=0;LowVidMemCap=0;EnableGraphicsPerfMonitor=0;DisableVrrSyncIntervalOverride=1";
-        //     RealSetAppCompatStringPointer(sizeof(test), test);
-        // }
     }
+
+    // {
+    //     static char test[] = "ForceWARP=0;DisableMaximizedWindowedFullscreen=1;DisableMaximizedWindowedUpgrades=1;Hybrid=0;LowVidMemCap=0;EnableGraphicsPerfMonitor=0;DisableVrrSyncIntervalOverride=1";
+    //     RealSetAppCompatStringPointer(sizeof(test), test);
+    // }
 }
