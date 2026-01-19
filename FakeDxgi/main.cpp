@@ -21,12 +21,7 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID lpvReserved)
         freopen_s(&oldStream, "CONOUT$", "w", stdout);
 #endif
 
-        WCHAR iniPath[512];
-        GetModuleFileName(hInstance, iniPath, ARRAYSIZE(iniPath));
-        PathCchRemoveFileSpec(iniPath, ARRAYSIZE(iniPath));
-        PathCchAppend(iniPath, ARRAYSIZE(iniPath), L"dxgi_preferences.ini");
-
-        LoadConfig(iniPath);
+        LoadConfig();
         DXGIMain();
         // PatchD3D11();
         // PatchD3D12();

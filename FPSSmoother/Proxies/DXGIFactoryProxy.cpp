@@ -82,10 +82,10 @@ HRESULT DXGIFactoryProxy::EnumAdapters(UINT Adapter, IDXGIAdapter **ppAdapter)
     inc_dbg_level(L"DXGIFactoryProxy::EnumAdapters");
 
     HRESULT hr = _factory->EnumAdapters(Adapter, ppAdapter);
-    // if (SUCCEEDED(hr))
-    // {
-    //     *ppAdapter = static_cast<IDXGIAdapter *>(GetProxyFor<DXGIAdapterProxy>(*ppAdapter));
-    // }
+    if (SUCCEEDED(hr))
+    {
+        *ppAdapter = static_cast<IDXGIAdapter *>(GetProxyFor<DXGIAdapterProxy>(*ppAdapter));
+    }
     return hr;
 }
 
@@ -145,6 +145,8 @@ HRESULT DXGIFactoryProxy::CreateSwapChain(IUnknown *pDevice, DXGI_SWAP_CHAIN_DES
         else
             pDesc->Flags &= ~DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
     }
+    if (g_SetFullscreenMode)
+        pDesc->Windowed = g_FullscreenMode ? FALSE : TRUE;
 
     g_StahpBruh++;
     HRESULT hr = _factory->CreateSwapChain(pDevice, pDesc, ppSwapChain);
@@ -229,6 +231,18 @@ HRESULT DXGIFactoryProxy::CreateSwapChainForHwnd(IUnknown *pDevice, HWND hWnd, c
         bool isD3D12 = false;
         bool handleD3D12MaximumFrameLatency = false;
 
+        DXGI_SWAP_CHAIN_FULLSCREEN_DESC fullscreenDesc{};
+        if (pFullscreenDesc)
+            fullscreenDesc = *pFullscreenDesc;
+        else
+        {
+            fullscreenDesc.RefreshRate.Numerator = 0;
+            fullscreenDesc.RefreshRate.Denominator = 0;
+            fullscreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+            fullscreenDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+            fullscreenDesc.Windowed = TRUE;
+        }
+
         ID3D12CommandQueue *d3d12CommandQueue = nullptr;
         pDevice->QueryInterface(&d3d12CommandQueue);
         if (d3d12CommandQueue)
@@ -240,7 +254,7 @@ HRESULT DXGIFactoryProxy::CreateSwapChainForHwnd(IUnknown *pDevice, HWND hWnd, c
         if (g_SetSwapChainBufferCount)
             ((DXGI_SWAP_CHAIN_DESC1 *)pDesc)->BufferCount = g_SwapChainBufferCount;
         if (g_SetPreferredRefreshRate)
-            ((DXGI_SWAP_CHAIN_FULLSCREEN_DESC *)pFullscreenDesc)->RefreshRate.Numerator = g_PreferredRefreshRate;
+            fullscreenDesc.RefreshRate.Numerator = g_PreferredRefreshRate;
         if (g_SetSwapEffect)
             ((DXGI_SWAP_CHAIN_DESC1 *)pDesc)->SwapEffect = g_SwapEffect;
         if (g_SetMaximumFrameLatency)
@@ -268,16 +282,17 @@ HRESULT DXGIFactoryProxy::CreateSwapChainForHwnd(IUnknown *pDevice, HWND hWnd, c
             else
                 ((DXGI_SWAP_CHAIN_DESC1 *)pDesc)->Flags &= ~DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
         }
+        if (g_SetFullscreenMode)
+            fullscreenDesc.Windowed = g_FullscreenMode ? FALSE : TRUE;
 
         g_StahpBruh++;
-        HRESULT hr = _factory2->CreateSwapChainForHwnd(pDevice, hWnd, pDesc, pFullscreenDesc, pRestrictToOutput, ppSwapChain);
+        HRESULT hr = _factory2->CreateSwapChainForHwnd(pDevice, hWnd, pDesc, &fullscreenDesc, pRestrictToOutput, ppSwapChain);
         g_StahpBruh--;
         if (SUCCEEDED(hr))
         {
             debug(L"-> Is D3D12: %d", isD3D12);
             debug(L"-> Resolution: %dx%d ", pDesc->Width, pDesc->Height);
-            if (pFullscreenDesc)
-                debug(L"->RefreshRate: %d Windowed: %d", pFullscreenDesc->RefreshRate.Numerator, pFullscreenDesc->Windowed);
+            debug(L"-> RefreshRate: %d Windowed: %d", fullscreenDesc.RefreshRate.Numerator, fullscreenDesc.Windowed);
             debug(L"-> BufferCount: %d SwapEffect: %s", pDesc->BufferCount, SwapChainSwapEffectToStr(pDesc->SwapEffect));
             debug(L"-> Flags: %s", SwapChainFlagsToStr(pDesc->Flags));
 

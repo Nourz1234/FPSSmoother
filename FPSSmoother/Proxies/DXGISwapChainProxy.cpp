@@ -181,7 +181,11 @@ HRESULT DXGISwapChainProxy::SetFullscreenState(BOOL Fullscreen, IDXGIOutput *pTa
 {
     inc_dbg_level(L"DXGISwapChainProxy::SetFullscreenState");
 
+    if (g_SetFullscreenMode)
+        Fullscreen = g_FullscreenMode ? TRUE : FALSE;
+
     debug(L"-> Fullscreen: %d", Fullscreen);
+
     return _swapChain->SetFullscreenState(Fullscreen, pTarget);
 }
 

@@ -59,3 +59,13 @@ target_link_libraries(FakeDxgi
 set_target_properties(FakeDxgi PROPERTIES PREFIX "") # remove "lib" prefix
 set_target_properties(FakeDxgi PROPERTIES OUTPUT_NAME dxgi)
 target_link_options(FakeDxgi PRIVATE -Wl,--kill-at)
+
+
+# post build
+add_custom_command(
+    TARGET FakeDxgi
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CMAKE_SOURCE_DIR}/FPSSmoother/fpss.ini
+            $<TARGET_FILE_DIR:FakeDxgi>
+)

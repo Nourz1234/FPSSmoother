@@ -1,12 +1,16 @@
+#include <pathcch.h>
 #include <stdexcept>
 
 #include "utils.h"
 #include "globals.h"
 #include "config.h"
 
-
-void LoadConfig(LPWSTR iniPath)
+void LoadConfig()
 {
+    WCHAR iniPath[512];
+    GetModuleFileName(NULL, iniPath, ARRAYSIZE(iniPath));
+    PathCchRemoveFileSpec(iniPath, ARRAYSIZE(iniPath));
+    PathCchAppend(iniPath, ARRAYSIZE(iniPath), L"fpss.ini");
 
 #define ReadIniValue(ValueName)  \
     std::wstring s##ValueName;   \
@@ -23,6 +27,7 @@ void LoadConfig(LPWSTR iniPath)
         s##ValueName = buff;     \
     } while (false)
 
+    ReadIniValue(FullscreenMode);
     ReadIniValue(VSyncMode);
     ReadIniValue(PreferredRefreshRate);
     ReadIniValue(SwapChainBufferCount);
@@ -30,6 +35,24 @@ void LoadConfig(LPWSTR iniPath)
     ReadIniValue(MaximumFrameLatency);
     ReadIniValue(AllowTearing);
     ReadIniValue(FPSLimit);
+
+    if (lstrcmpi(sFullscreenMode.c_str(), L"On") == 0)
+    {
+        g_SetFullscreenMode = true;
+        g_FullscreenMode = true;
+        debug(L"FullscreenMode: On");
+    }
+    else if (lstrcmpi(sFullscreenMode.c_str(), L"Off") == 0)
+    {
+        g_SetFullscreenMode = true;
+        g_FullscreenMode = false;
+        debug(L"FullscreenMode: Off");
+    }
+    else
+    {
+        g_SetFullscreenMode = false;
+        debug(L"FullscreenMode: Default");
+    }
 
     if (lstrcmpi(sVSyncMode.c_str(), L"Off") == 0)
     {
@@ -151,7 +174,7 @@ void LoadConfig(LPWSTR iniPath)
         g_AllowTearing = true;
         debug(L"AllowTearing: On");
     }
-    if (lstrcmpi(sAllowTearing.c_str(), L"Off") == 0)
+    else if (lstrcmpi(sAllowTearing.c_str(), L"Off") == 0)
     {
         g_SetAllowTearing = true;
         g_AllowTearing = false;
