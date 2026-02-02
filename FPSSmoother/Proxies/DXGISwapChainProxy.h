@@ -1,5 +1,6 @@
 #pragma once
 #include <dxgi1_6.h>
+#include "../utils.h"
 
 class DXGISwapChainProxy : public IDXGISwapChain4
 {
@@ -27,6 +28,22 @@ public:
     }
     DXGISwapChainProxy(IDXGISwapChain4 *swapChain) : _swapChain(swapChain), _swapChain1(swapChain), _swapChain2(swapChain), _swapChain3(swapChain), _swapChain4(swapChain)
     {
+    }
+
+    static inline void QueryProxy(REFIID riid, void **ppvObject, DXGISwapChainProxy *pCurrent)
+    {
+        ProxyHelper proxyHelper;
+        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain>(riid, ppvObject);
+        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain1>(riid, ppvObject);
+        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain2>(riid, ppvObject);
+        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain3>(riid, ppvObject);
+        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain4>(riid, ppvObject);
+        proxyHelper.AndThankYou(riid, ppvObject);
+        if (proxyHelper.UwU() && pCurrent)
+        {
+            ((DXGISwapChainProxy *)*ppvObject)->_handleD3D12MaximumFrameLatency = pCurrent->_handleD3D12MaximumFrameLatency;
+            ((DXGISwapChainProxy *)*ppvObject)->_frameLatencyWaitHandle = pCurrent->_frameLatencyWaitHandle;
+        }
     }
 
     void EnableD3D12MaximumFrameLatencyHandling();

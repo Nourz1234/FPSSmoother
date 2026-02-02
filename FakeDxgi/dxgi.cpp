@@ -36,8 +36,7 @@ HRESULT WINAPI CreateDXGIFactory(REFIID riid, _Out_ void **ppFactory)
     HRESULT hr = RealCreateDXGIFactory(riid, ppFactory);
     if (SUCCEEDED(hr))
     {
-        IDXGIFactory *pTempFactory = GetProxyFor<DXGIFactoryProxy>((IDXGIFactory *)*ppFactory);
-        hr = pTempFactory->QueryInterface(riid, ppFactory);
+        DXGIFactoryProxy::QueryProxy(riid, ppFactory);
     }
     return hr;
 }
@@ -53,8 +52,7 @@ HRESULT WINAPI CreateDXGIFactory1(REFIID riid, _Out_ void **ppFactory)
     HRESULT hr = RealCreateDXGIFactory1(riid, ppFactory);
     if (SUCCEEDED(hr))
     {
-        IDXGIFactory *pTempFactory = GetProxyFor<DXGIFactoryProxy>((IDXGIFactory1 *)*ppFactory);
-        hr = pTempFactory->QueryInterface(riid, ppFactory);
+        DXGIFactoryProxy::QueryProxy(riid, ppFactory);
     }
     return hr;
 }
@@ -78,8 +76,7 @@ HRESULT WINAPI CreateDXGIFactory2(UINT Flags, REFIID riid, _Out_ void **ppFactor
         }
         else
         {
-            IDXGIFactory *pTempFactory = GetProxyFor<DXGIFactoryProxy>((IDXGIFactory2 *)*ppFactory);
-            hr = pTempFactory->QueryInterface(riid, ppFactory);
+            DXGIFactoryProxy::QueryProxy(riid, ppFactory);
         }
     }
     return hr;

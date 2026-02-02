@@ -7,9 +7,7 @@ HRESULT DXGIObjectProxy::QueryInterface(REFIID riid, void **ppvObject)
     HRESULT hr = _object->QueryInterface(riid, ppvObject);
     if (SUCCEEDED(hr))
     {
-        ProxyHelper proxyHelper;
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIObjectProxy, IDXGIObject>(riid, ppvObject);
-        proxyHelper.AndThankYou(riid, ppvObject);
+        DXGIObjectProxy::QueryProxy(riid, ppvObject);
     }
 
     return hr;

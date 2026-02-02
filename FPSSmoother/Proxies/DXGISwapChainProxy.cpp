@@ -88,18 +88,7 @@ HRESULT DXGISwapChainProxy::QueryInterface(REFIID riid, void **ppvObject)
     HRESULT hr = _swapChain->QueryInterface(riid, ppvObject);
     if (SUCCEEDED(hr))
     {
-        ProxyHelper proxyHelper;
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain1>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain2>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain3>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGISwapChainProxy, IDXGISwapChain4>(riid, ppvObject);
-        proxyHelper.AndThankYou(riid, ppvObject);
-        if (proxyHelper.UwU())
-        {
-            ((DXGISwapChainProxy *)*ppvObject)->_handleD3D12MaximumFrameLatency = _handleD3D12MaximumFrameLatency;
-            ((DXGISwapChainProxy *)*ppvObject)->_frameLatencyWaitHandle = _frameLatencyWaitHandle;
-        }
+        DXGISwapChainProxy::QueryProxy(riid, ppvObject, this);
     }
 
     return hr;

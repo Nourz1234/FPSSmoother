@@ -1,5 +1,6 @@
 #pragma once
-#include <d3d11_2.h>
+#include <dxgi.h>
+#include "../utils.h"
 
 class DXGIObjectProxy : public IDXGIObject
 {
@@ -8,6 +9,13 @@ class DXGIObjectProxy : public IDXGIObject
 public:
     DXGIObjectProxy(IDXGIObject *object) : _object(object)
     {
+    }
+
+    static inline void QueryProxy(REFIID riid, void **ppvObject)
+    {
+        ProxyHelper proxyHelper;
+        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIObjectProxy, IDXGIObject>(riid, ppvObject);
+        proxyHelper.AndThankYou(riid, ppvObject);
     }
 
     // Inherited via IDXGIObject

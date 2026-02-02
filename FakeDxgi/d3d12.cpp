@@ -1,3 +1,4 @@
+#include "FPSSmoother/Proxies/D3D12DeviceProxy.h"
 #include "FPSSmoother/utils.h"
 #include "PatchJmp/PatchJmp.h"
 
@@ -23,6 +24,10 @@ HRESULT WINAPI FakeD3D12CreateDevice(
     UndoPatch(g_D3D12CreateDevice_UndoPatch);
 
     HRESULT hr = D3D12CreateDeviceReal(pAdapter, MinimumFeatureLevel, riid, ppDevice);
+    if (SUCCEEDED(hr))
+    {
+        D3D12DeviceProxy::QueryProxy(riid, ppDevice);
+    }
 
     g_D3D12CreateDevice_UndoPatch = PatchAddress((LPVOID)D3D12CreateDeviceReal, (LPVOID)FakeD3D12CreateDevice);
     return hr;

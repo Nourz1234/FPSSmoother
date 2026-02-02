@@ -5,6 +5,7 @@
 
 #include <Windows.h>
 #include <d3d11.h>
+#include <d3d11on12.h>
 
 #define D3D11_DLL_PATH "C:\\Windows\\System32\\d3d11.dll"
 
@@ -72,11 +73,43 @@ HRESULT FakeD3D11CreateDeviceAndSwapChain(
     return hr;
 }
 
+using D3D11On12CreateDeviceProc = decltype(&D3D11On12CreateDevice);
+D3D11On12CreateDeviceProc D3D11On12CreateDeviceReal = nullptr;
+undo_patch *g_D3D11On12CreateDevice_UndoPatch;
+
+HRESULT FakeD3D11On12CreateDevice(
+    IUnknown *pDevice,
+    UINT Flags,
+    const D3D_FEATURE_LEVEL *pFeatureLevels,
+    UINT FeatureLevels,
+    IUnknown *const *ppCommandQueues,
+    UINT NumQueues,
+    UINT NodeMask,
+    ID3D11Device **ppDevice,
+    ID3D11DeviceContext **ppImmediateContext,
+    D3D_FEATURE_LEVEL *pChosenFeatureLevel)
+{
+    inc_dbg_level(L"FakeD3D11On12CreateDevice");
+
+    UndoPatch(g_D3D11On12CreateDevice_UndoPatch);
+
+    HRESULT hr = D3D11On12CreateDeviceReal(pDevice, Flags, pFeatureLevels, FeatureLevels, ppCommandQueues, NumQueues, NodeMask, ppDevice, ppImmediateContext, pChosenFeatureLevel);
+    if (SUCCEEDED(hr))
+    {
+        *ppDevice = GetProxyFor<D3D11DeviceProxy>(*ppDevice);
+    }
+
+    g_D3D11On12CreateDevice_UndoPatch = PatchAddress((LPVOID)D3D11On12CreateDeviceReal, (LPVOID)FakeD3D11On12CreateDevice);
+    return hr;
+}
+
 void PatchD3D11()
 {
     D3D11CreateDeviceReal = (D3D11CreateDeviceProc)GetProcAddress2(D3D11_DLL_PATH, "D3D11CreateDevice");
     D3D11CreateDeviceAndSwapChainReal = (D3D11CreateDeviceAndSwapChainProc)GetProcAddress2(D3D11_DLL_PATH, "D3D11CreateDeviceAndSwapChain");
+    D3D11On12CreateDeviceReal = (D3D11On12CreateDeviceProc)GetProcAddress2(D3D11_DLL_PATH, "D3D11On12CreateDevice");
 
     g_D3D11CreateDevice_UndoPatch = PatchAddress((LPVOID)D3D11CreateDeviceReal, (LPVOID)FakeD3D11CreateDevice);
     g_D3D11CreateDeviceAndSwapChain_UndoPatch = PatchAddress((LPVOID)D3D11CreateDeviceAndSwapChainReal, (LPVOID)FakeD3D11CreateDeviceAndSwapChain);
+    g_D3D11On12CreateDevice_UndoPatch = PatchAddress((LPVOID)D3D11On12CreateDeviceReal, (LPVOID)FakeD3D11On12CreateDevice);
 }

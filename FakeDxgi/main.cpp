@@ -23,8 +23,8 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID lpvReserved)
 
         LoadConfig();
         DXGIMain();
-        // PatchD3D11();
-        // PatchD3D12();
+        PatchD3D11();
+        PatchD3D12();
         break;
     }
 

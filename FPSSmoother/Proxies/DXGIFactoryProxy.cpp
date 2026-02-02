@@ -3,6 +3,7 @@
 #include "DXGIFactoryProxy.h"
 #include "DXGISwapChainProxy.h"
 #include "DXGIAdapterProxy.h"
+#include "DXGIObjectProxy.h"
 #include "../globals.h"
 #include "../utils.h"
 
@@ -19,16 +20,7 @@ HRESULT DXGIFactoryProxy::QueryInterface(REFIID riid, void **ppvObject)
     HRESULT hr = _factory->QueryInterface(riid, ppvObject);
     if (SUCCEEDED(hr))
     {
-        ProxyHelper proxyHelper;
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory1>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory2>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory3>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory4>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory5>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory6>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory7>(riid, ppvObject);
-        proxyHelper.AndThankYou(riid, ppvObject);
+        DXGIFactoryProxy::QueryProxy(riid, ppvObject);
     }
 
     return hr;
@@ -70,8 +62,7 @@ HRESULT DXGIFactoryProxy::GetParent(REFIID riid, void **ppParent)
     HRESULT hr = _factory->GetParent(riid, ppParent);
     if (SUCCEEDED(hr))
     {
-        ProxyHelper proxyHelper;
-        proxyHelper.AndThankYou(riid, ppParent);
+        DXGIObjectProxy::QueryProxy(riid, ppParent);
     }
 
     return hr;
@@ -423,7 +414,14 @@ HRESULT DXGIFactoryProxy::EnumAdapterByLuid(LUID AdapterLuid, REFIID riid, void 
     inc_dbg_level(L"DXGIFactoryProxy::EnumAdapterByLuid");
 
     if (_factory4)
-        return _factory4->EnumAdapterByLuid(AdapterLuid, riid, ppvAdapter);
+    {
+        HRESULT hr = _factory4->EnumAdapterByLuid(AdapterLuid, riid, ppvAdapter);
+        if (SUCCEEDED(hr))
+        {
+            DXGIAdapterProxy::QueryProxy(riid, ppvAdapter);
+        }
+        return hr;
+    }
 
     debug(L"Warning: Not implemented code path reached.");
     return E_NOTIMPL;

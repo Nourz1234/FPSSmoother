@@ -1,9 +1,23 @@
 #include "DXGIAdapterProxy.h"
 #include "DXGIFactoryProxy.h"
+#include "DXGIOutputProxy.h"
+#include "DXGIObjectProxy.h"
 #include "../globals.h"
 #include "../utils.h"
 
-HRESULT DXGIAdapterProxy::QueryInterface(REFIID riid, void ** ppvObject)
+inline void DXGIAdapterProxy::QueryProxy(REFIID riid, void **ppvObject)
+{
+    ProxyHelper proxyHelper;
+    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIObjectProxy, IDXGIObject>(riid, ppvObject);
+    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter>(riid, ppvObject);
+    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter1>(riid, ppvObject);
+    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter2>(riid, ppvObject);
+    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter3>(riid, ppvObject);
+    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter4>(riid, ppvObject);
+    proxyHelper.AndThankYou(riid, ppvObject);
+}
+
+HRESULT DXGIAdapterProxy::QueryInterface(REFIID riid, void **ppvObject)
 {
     inc_dbg_level(L"DXGIAdapterProxy::QueryInterface");
 
@@ -16,13 +30,7 @@ HRESULT DXGIAdapterProxy::QueryInterface(REFIID riid, void ** ppvObject)
     HRESULT hr = _adapter->QueryInterface(riid, ppvObject);
     if (SUCCEEDED(hr))
     {
-        ProxyHelper proxyHelper;
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter1>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter2>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter3>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter4>(riid, ppvObject);
-        proxyHelper.AndThankYou(riid, ppvObject);
+        DXGIAdapterProxy::QueryProxy(riid, ppvObject);
     }
 
     return hr;
@@ -43,71 +51,62 @@ ULONG DXGIAdapterProxy::Release(void)
     return _adapter->Release();
 }
 
-HRESULT DXGIAdapterProxy::SetPrivateData(REFGUID Name, UINT DataSize, const void * pData)
+HRESULT DXGIAdapterProxy::SetPrivateData(REFGUID Name, UINT DataSize, const void *pData)
 {
-    inc_dbg_level(L"DXGIAdapterProxy::SetPrivateData");
-
     return _adapter->SetPrivateData(Name, DataSize, pData);
 }
 
-HRESULT DXGIAdapterProxy::SetPrivateDataInterface(REFGUID Name, const IUnknown * pUnknown)
+HRESULT DXGIAdapterProxy::SetPrivateDataInterface(REFGUID Name, const IUnknown *pUnknown)
 {
-    inc_dbg_level(L"DXGIAdapterProxy::SetPrivateDataInterface");
-
     return _adapter->SetPrivateDataInterface(Name, pUnknown);
 }
 
-HRESULT DXGIAdapterProxy::GetPrivateData(REFGUID Name, UINT * pDataSize, void * pData)
+HRESULT DXGIAdapterProxy::GetPrivateData(REFGUID Name, UINT *pDataSize, void *pData)
 {
-    inc_dbg_level(L"DXGIAdapterProxy::GetPrivateData");
-
     return _adapter->GetPrivateData(Name, pDataSize, pData);
 }
 
-HRESULT DXGIAdapterProxy::GetParent(REFIID riid, void ** ppParent)
+HRESULT DXGIAdapterProxy::GetParent(REFIID riid, void **ppParent)
 {
     inc_dbg_level(L"DXGIAdapterProxy::GetParent");
 
     HRESULT hr = _adapter->GetParent(riid, ppParent);
     if (SUCCEEDED(hr))
     {
-        ProxyHelper proxyHelper;
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory>(riid, ppParent);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory1>(riid, ppParent);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory2>(riid, ppParent);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory3>(riid, ppParent);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory4>(riid, ppParent);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory5>(riid, ppParent);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory6>(riid, ppParent);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory7>(riid, ppParent);
-        proxyHelper.AndThankYou(riid, ppParent);
+        DXGIFactoryProxy::QueryProxy(riid, ppParent);
     }
 
     return hr;
 }
 
-HRESULT DXGIAdapterProxy::EnumOutputs(UINT Output, IDXGIOutput ** ppOutput)
+HRESULT DXGIAdapterProxy::EnumOutputs(UINT Output, IDXGIOutput **ppOutput)
 {
     inc_dbg_level(L"DXGIAdapterProxy::EnumOutputs");
 
-    return _adapter->EnumOutputs(Output, ppOutput);
+    HRESULT hr = _adapter->EnumOutputs(Output, ppOutput);
+    if (SUCCEEDED(hr))
+    {
+        *ppOutput = GetProxyFor<DXGIOutputProxy>(*ppOutput);
+    }
+
+    return hr;
 }
 
-HRESULT DXGIAdapterProxy::GetDesc(DXGI_ADAPTER_DESC * pDesc)
+HRESULT DXGIAdapterProxy::GetDesc(DXGI_ADAPTER_DESC *pDesc)
 {
     inc_dbg_level(L"DXGIAdapterProxy::GetDesc");
 
     return _adapter->GetDesc(pDesc);
 }
 
-HRESULT DXGIAdapterProxy::CheckInterfaceSupport(REFGUID InterfaceName, LARGE_INTEGER * pUMDVersion)
+HRESULT DXGIAdapterProxy::CheckInterfaceSupport(REFGUID InterfaceName, LARGE_INTEGER *pUMDVersion)
 {
     inc_dbg_level(L"DXGIAdapterProxy::CheckInterfaceSupport");
 
     return _adapter->CheckInterfaceSupport(InterfaceName, pUMDVersion);
 }
 
-HRESULT DXGIAdapterProxy::GetDesc1(DXGI_ADAPTER_DESC1 * pDesc)
+HRESULT DXGIAdapterProxy::GetDesc1(DXGI_ADAPTER_DESC1 *pDesc)
 {
     inc_dbg_level(L"DXGIAdapterProxy::GetDesc1");
 
@@ -118,7 +117,7 @@ HRESULT DXGIAdapterProxy::GetDesc1(DXGI_ADAPTER_DESC1 * pDesc)
     return E_NOTIMPL;
 }
 
-HRESULT DXGIAdapterProxy::GetDesc2(DXGI_ADAPTER_DESC2 * pDesc)
+HRESULT DXGIAdapterProxy::GetDesc2(DXGI_ADAPTER_DESC2 *pDesc)
 {
     inc_dbg_level(L"DXGIAdapterProxy::GetDesc2");
 
@@ -129,7 +128,7 @@ HRESULT DXGIAdapterProxy::GetDesc2(DXGI_ADAPTER_DESC2 * pDesc)
     return E_NOTIMPL;
 }
 
-HRESULT DXGIAdapterProxy::RegisterHardwareContentProtectionTeardownStatusEvent(HANDLE hEvent, DWORD * pdwCookie)
+HRESULT DXGIAdapterProxy::RegisterHardwareContentProtectionTeardownStatusEvent(HANDLE hEvent, DWORD *pdwCookie)
 {
     inc_dbg_level(L"DXGIAdapterProxy::RegisterHardwareContentProtectionTeardownStatusEvent");
 
@@ -150,7 +149,7 @@ void DXGIAdapterProxy::UnregisterHardwareContentProtectionTeardownStatus(DWORD d
     debug(L"Warning: Not implemented code path reached.");
 }
 
-HRESULT DXGIAdapterProxy::QueryVideoMemoryInfo(UINT NodeIndex, DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup, DXGI_QUERY_VIDEO_MEMORY_INFO * pVideoMemoryInfo)
+HRESULT DXGIAdapterProxy::QueryVideoMemoryInfo(UINT NodeIndex, DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup, DXGI_QUERY_VIDEO_MEMORY_INFO *pVideoMemoryInfo)
 {
     // inc_dbg_level(L"DXGIAdapterProxy::QueryVideoMemoryInfo");
 
@@ -172,7 +171,7 @@ HRESULT DXGIAdapterProxy::SetVideoMemoryReservation(UINT NodeIndex, DXGI_MEMORY_
     return E_NOTIMPL;
 }
 
-HRESULT DXGIAdapterProxy::RegisterVideoMemoryBudgetChangeNotificationEvent(HANDLE hEvent, DWORD * pdwCookie)
+HRESULT DXGIAdapterProxy::RegisterVideoMemoryBudgetChangeNotificationEvent(HANDLE hEvent, DWORD *pdwCookie)
 {
     inc_dbg_level(L"DXGIAdapterProxy::RegisterVideoMemoryBudgetChangeNotificationEvent");
 
@@ -193,7 +192,7 @@ void DXGIAdapterProxy::UnregisterVideoMemoryBudgetChangeNotification(DWORD dwCoo
     debug(L"Warning: Not implemented code path reached.");
 }
 
-HRESULT DXGIAdapterProxy::GetDesc3(DXGI_ADAPTER_DESC3 * pDesc)
+HRESULT DXGIAdapterProxy::GetDesc3(DXGI_ADAPTER_DESC3 *pDesc)
 {
     inc_dbg_level(L"DXGIAdapterProxy::GetDesc3");
 
