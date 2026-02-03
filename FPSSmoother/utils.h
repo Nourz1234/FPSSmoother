@@ -9,81 +9,15 @@
 
 #include <typeinfo>
 
-const char *GetMB(const wchar_t *wc);
-const wchar_t *GetWC(const char *c);
+LPCSTR GetMB(LPCWSTR wc);
+LPCWSTR GetWC(LPCSTR c);
+
+LPCWSTR SwapChainSwapEffectToStr(DXGI_SWAP_EFFECT SwapEffect);
+LPCWSTR SwapChainFlagsToStr(UINT Flags);
 
 void fdebug(std::wstring str);
 
-template <typename... Args>
-void debug(const wchar_t *_Format, Args... args)
-{
-    WCHAR buff[1024];
-    swprintf_s(buff, _Format, args...);
-
-    std::wstring str = L"";
-    for (int i = 0; i < g_DbgLevel; ++i)
-    {
-        str.append(L"  ");
-    }
-    str.append(buff);
-    str.append(L"\n");
-    wprintf_s(str.c_str());
-
-    fdebug(str);
-}
-
-__inline LPCWSTR SwapChainSwapEffectToStr(DXGI_SWAP_EFFECT SwapEffect)
-{
-    static wchar_t lpStr[1024]{};
-
-    if (SwapEffect == DXGI_SWAP_EFFECT_DISCARD)
-        swprintf_s(lpStr, L"DXGI_SWAP_EFFECT_DISCARD");
-    if (SwapEffect == DXGI_SWAP_EFFECT_SEQUENTIAL)
-        swprintf_s(lpStr, L"DXGI_SWAP_EFFECT_SEQUENTIAL");
-    if (SwapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL)
-        swprintf_s(lpStr, L"DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL");
-    if (SwapEffect == DXGI_SWAP_EFFECT_FLIP_DISCARD)
-        swprintf_s(lpStr, L"DXGI_SWAP_EFFECT_FLIP_DISCARD");
-
-    return lpStr;
-}
-__inline LPCWSTR SwapChainFlagsToStr(UINT Flags)
-{
-    std::wstring str = L"";
-
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_NONPREROTATED)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_NONPREROTATED ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_NONPREROTATED)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_NONPREROTATED ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_GDI_COMPATIBLE)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_GDI_COMPATIBLE ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_RESTRICTED_CONTENT)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_RESTRICTED_CONTENT ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_RESTRICT_SHARED_RESOURCE_DRIVER)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_RESTRICT_SHARED_RESOURCE_DRIVER ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_DISPLAY_ONLY)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_DISPLAY_ONLY ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_FOREGROUND_LAYER)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_FOREGROUND_LAYER ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_FULLSCREEN_VIDEO)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_FULLSCREEN_VIDEO ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_YUV_VIDEO)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_YUV_VIDEO ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_HW_PROTECTED)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_HW_PROTECTED ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING ");
-    if (Flags & DXGI_SWAP_CHAIN_FLAG_RESTRICTED_TO_ALL_HOLOGRAPHIC_DISPLAYS)
-        str.append(L"DXGI_SWAP_CHAIN_FLAG_RESTRICTED_TO_ALL_HOLOGRAPHIC_DISPLAYS ");
-
-    static wchar_t lpStr[1024]{};
-    swprintf_s(lpStr, str.c_str());
-    return lpStr;
-}
+void debug(const wchar_t *_Format, ...);
 
 class DbgLevel
 {
@@ -92,8 +26,8 @@ public:
     ~DbgLevel() { g_DbgLevel -= 1; }
 };
 
-#define inc_dbg_level(msg) \
-    debug(msg);            \
+#define inc_dbg_level(msg, ...)            \
+    debug(msg __VA_OPT__(, ) __VA_ARGS__); \
     DbgLevel ll
 
 #else
