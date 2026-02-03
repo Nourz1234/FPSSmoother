@@ -60,7 +60,12 @@ HRESULT D3D12DeviceProxy::CreateCommandQueue(const D3D12_COMMAND_QUEUE_DESC *des
 {
     inc_dbg_level(L"D3D12DeviceProxy::CreateCommandQueue");
 
-    return _device->CreateCommandQueue(desc, riid, command_queue);
+    HRESULT hr = _device->CreateCommandQueue(desc, riid, command_queue);
+    // if (SUCCEEDED(hr))
+    // {
+    //     QueryProxy(riid, command_queue);
+    // }
+    return hr;
 }
 
 HRESULT D3D12DeviceProxy::CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE type, REFIID riid, void **command_allocator)

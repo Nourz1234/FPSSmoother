@@ -6,6 +6,7 @@
 #include "Proxies/DXGIFactoryProxy.h"
 #include "Proxies/DXGIOutputProxy.h"
 #include "Proxies/DXGISwapChainProxy.h"
+#include "Proxies/D3D12CommandQueueProxy.h"
 #include "utils.h"
 #include "proxy_utils.h"
 
@@ -30,6 +31,8 @@ bool QueryProxy(REFIID riid, void **ppvObject)
     proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device7>(riid, ppvObject);
     proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device8>(riid, ppvObject);
     proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device9>(riid, ppvObject);
+    // ID3D12CommandQueue
+    proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12CommandQueueProxy, ID3D12CommandQueue>(riid, ppvObject);
     // IDXGIDevice
     proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIDeviceProxy, IDXGIDevice>(riid, ppvObject);
     proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIDeviceProxy, IDXGIDevice1>(riid, ppvObject);

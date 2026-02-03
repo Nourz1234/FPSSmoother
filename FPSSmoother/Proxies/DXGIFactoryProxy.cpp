@@ -1,11 +1,11 @@
 #include <d3d12.h>
 
 #include "DXGIFactoryProxy.h"
+#include "DXGIAdapterProxy.h"
+#include "DXGISwapChainProxy.h"
 #include "../globals.h"
 #include "../utils.h"
 #include "../proxy_utils.h"
-#include "DXGIAdapterProxy.h"
-#include "DXGISwapChainProxy.h"
 
 HRESULT DXGIFactoryProxy::QueryInterface(REFIID riid, void **ppvObject)
 {
