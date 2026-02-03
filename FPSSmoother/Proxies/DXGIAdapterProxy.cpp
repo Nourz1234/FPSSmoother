@@ -1,21 +1,8 @@
 #include "DXGIAdapterProxy.h"
-#include "DXGIFactoryProxy.h"
 #include "DXGIOutputProxy.h"
-#include "DXGIObjectProxy.h"
 #include "../globals.h"
 #include "../utils.h"
-
-inline void DXGIAdapterProxy::QueryProxy(REFIID riid, void **ppvObject)
-{
-    ProxyHelper proxyHelper;
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIObjectProxy, IDXGIObject>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter1>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter2>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter3>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIAdapterProxy, IDXGIAdapter4>(riid, ppvObject);
-    proxyHelper.AndThankYou(riid, ppvObject);
-}
+#include "../proxy_utils.h"
 
 HRESULT DXGIAdapterProxy::QueryInterface(REFIID riid, void **ppvObject)
 {
@@ -30,7 +17,7 @@ HRESULT DXGIAdapterProxy::QueryInterface(REFIID riid, void **ppvObject)
     HRESULT hr = _adapter->QueryInterface(riid, ppvObject);
     if (SUCCEEDED(hr))
     {
-        DXGIAdapterProxy::QueryProxy(riid, ppvObject);
+        QueryProxy(riid, ppvObject, this);
     }
 
     return hr;
@@ -73,7 +60,7 @@ HRESULT DXGIAdapterProxy::GetParent(REFIID riid, void **ppParent)
     HRESULT hr = _adapter->GetParent(riid, ppParent);
     if (SUCCEEDED(hr))
     {
-        DXGIFactoryProxy::QueryProxy(riid, ppParent);
+        QueryProxy(riid, ppParent);
     }
 
     return hr;

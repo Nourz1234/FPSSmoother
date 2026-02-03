@@ -1,25 +1,8 @@
-#include "D3D11DeviceProxy.h"
 #include "DXGIDeviceProxy.h"
-#include "DXGIFactoryProxy.h"
 #include "DXGIAdapterProxy.h"
 #include "../globals.h"
 #include "../utils.h"
-
-inline void DXGIDeviceProxy::QueryProxy(REFIID riid, void **ppvObject)
-{
-    ProxyHelper proxyHelper;
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIDeviceProxy, IDXGIDevice>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIDeviceProxy, IDXGIDevice1>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIDeviceProxy, IDXGIDevice2>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIDeviceProxy, IDXGIDevice3>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIDeviceProxy, IDXGIDevice4>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D11DeviceProxy, ID3D11Device>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D11DeviceProxy, ID3D11Device1>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D11DeviceProxy, ID3D11Device2>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D11DeviceProxy, ID3D11Device3>(riid, ppvObject);
-    proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D11DeviceProxy, ID3D11Device4>(riid, ppvObject);
-    proxyHelper.AndThankYou(riid, ppvObject);
-}
+#include "../proxy_utils.h"
 
 HRESULT DXGIDeviceProxy::QueryInterface(REFIID riid, void **ppvObject)
 {
@@ -34,7 +17,7 @@ HRESULT DXGIDeviceProxy::QueryInterface(REFIID riid, void **ppvObject)
     HRESULT hr = _device->QueryInterface(riid, ppvObject);
     if (SUCCEEDED(hr))
     {
-        DXGIDeviceProxy::QueryProxy(riid, ppvObject);
+        QueryProxy(riid, ppvObject, this);
     }
 
     return hr;
@@ -82,7 +65,7 @@ HRESULT DXGIDeviceProxy::GetParent(REFIID riid, void **ppParent)
     HRESULT hr = _device->GetParent(riid, ppParent);
     if (SUCCEEDED(hr))
     {
-        DXGIAdapterProxy::QueryProxy(riid, ppParent);
+        QueryProxy(riid, ppParent);
     }
 
     return hr;

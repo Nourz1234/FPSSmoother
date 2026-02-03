@@ -1,6 +1,7 @@
 #include "DXGIOutputProxy.h"
 #include "../globals.h"
 #include "../utils.h"
+#include "../proxy_utils.h"
 
 HRESULT DXGIOutputProxy::QueryInterface(REFIID riid, void **ppvObject)
 {
@@ -15,7 +16,7 @@ HRESULT DXGIOutputProxy::QueryInterface(REFIID riid, void **ppvObject)
     HRESULT hr = _output->QueryInterface(riid, ppvObject);
     if (SUCCEEDED(hr))
     {
-        DXGIOutputProxy::QueryProxy(riid, ppvObject);
+        QueryProxy(riid, ppvObject, this);
     }
 
     return hr;

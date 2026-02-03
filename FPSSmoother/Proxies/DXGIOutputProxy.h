@@ -1,8 +1,8 @@
 #pragma once
 #include <dxgi1_6.h>
-#include "../utils.h"
+#include "ProxyBase.h"
 
-class DXGIOutputProxy : public IDXGIOutput6
+class DXGIOutputProxy : public IDXGIOutput6, public ProxyBase
 {
     IDXGIOutput *_output = nullptr;
     IDXGIOutput1 *_output1 = nullptr;
@@ -35,18 +35,7 @@ public:
     {
     }
 
-    static inline void QueryProxy(REFIID riid, void **ppvObject)
-    {
-        ProxyHelper proxyHelper;
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIOutputProxy, IDXGIOutput>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIOutputProxy, IDXGIOutput1>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIOutputProxy, IDXGIOutput2>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIOutputProxy, IDXGIOutput3>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIOutputProxy, IDXGIOutput4>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIOutputProxy, IDXGIOutput5>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIOutputProxy, IDXGIOutput6>(riid, ppvObject);
-        proxyHelper.AndThankYou(riid, ppvObject);
-    }
+    virtual void CopyTo(ProxyBase *other) override {}
 
     // Inherited via IDXGIOutput6
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;

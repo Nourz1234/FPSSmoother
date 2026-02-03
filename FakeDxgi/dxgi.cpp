@@ -1,7 +1,8 @@
-#include "FPSSmoother/Proxies/DXGIFactoryProxy.h"
-#include "FPSSmoother/utils.h"
-
 #include <Windows.h>
+#include <dxgi1_6.h>
+
+#include "FPSSmoother/utils.h"
+#include "FPSSmoother/proxy_utils.h"
 
 #define DXGI_DLL_PATH "C:\\Windows\\System32\\dxgi.dll"
 
@@ -36,7 +37,7 @@ HRESULT WINAPI CreateDXGIFactory(REFIID riid, _Out_ void **ppFactory)
     HRESULT hr = RealCreateDXGIFactory(riid, ppFactory);
     if (SUCCEEDED(hr))
     {
-        DXGIFactoryProxy::QueryProxy(riid, ppFactory);
+        QueryProxy(riid, ppFactory);
     }
     return hr;
 }
@@ -52,7 +53,7 @@ HRESULT WINAPI CreateDXGIFactory1(REFIID riid, _Out_ void **ppFactory)
     HRESULT hr = RealCreateDXGIFactory1(riid, ppFactory);
     if (SUCCEEDED(hr))
     {
-        DXGIFactoryProxy::QueryProxy(riid, ppFactory);
+        QueryProxy(riid, ppFactory);
     }
     return hr;
 }
@@ -76,7 +77,7 @@ HRESULT WINAPI CreateDXGIFactory2(UINT Flags, REFIID riid, _Out_ void **ppFactor
         }
         else
         {
-            DXGIFactoryProxy::QueryProxy(riid, ppFactory);
+            QueryProxy(riid, ppFactory);
         }
     }
     return hr;

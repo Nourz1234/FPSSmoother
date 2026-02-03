@@ -1,6 +1,6 @@
 #include "D3D12DeviceProxy.h"
-#include "DXGIDeviceProxy.h"
 #include "../utils.h"
+#include "../proxy_utils.h"
 
 HRESULT D3D12DeviceProxy::QueryInterface(REFIID riid, void **ppvObject)
 {
@@ -15,7 +15,7 @@ HRESULT D3D12DeviceProxy::QueryInterface(REFIID riid, void **ppvObject)
     HRESULT hr = _device->QueryInterface(riid, ppvObject);
     if (SUCCEEDED(hr))
     {
-        D3D12DeviceProxy::QueryProxy(riid, ppvObject);
+        QueryProxy(riid, ppvObject, this);
     }
 
     return hr;
@@ -120,8 +120,6 @@ void D3D12DeviceProxy::CreateUnorderedAccessView(ID3D12Resource *resource, ID3D1
 
 void D3D12DeviceProxy::CreateRenderTargetView(ID3D12Resource *resource, const D3D12_RENDER_TARGET_VIEW_DESC *desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor)
 {
-    inc_dbg_level(L"D3D12DeviceProxy::CreateRenderTargetView");
-
     _device->CreateRenderTargetView(resource, desc, descriptor);
 }
 

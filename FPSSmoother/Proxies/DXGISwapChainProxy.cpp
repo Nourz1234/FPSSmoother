@@ -1,6 +1,7 @@
 #include "DXGISwapChainProxy.h"
 #include "../globals.h"
 #include "../utils.h"
+#include "../proxy_utils.h"
 
 void nanosleep(LONGLONG ns)
 {
@@ -88,7 +89,7 @@ HRESULT DXGISwapChainProxy::QueryInterface(REFIID riid, void **ppvObject)
     HRESULT hr = _swapChain->QueryInterface(riid, ppvObject);
     if (SUCCEEDED(hr))
     {
-        DXGISwapChainProxy::QueryProxy(riid, ppvObject, this);
+        QueryProxy(riid, ppvObject, this);
     }
 
     return hr;

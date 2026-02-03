@@ -1,11 +1,11 @@
 #include <d3d12.h>
 
 #include "DXGIFactoryProxy.h"
-#include "DXGISwapChainProxy.h"
-#include "DXGIAdapterProxy.h"
-#include "DXGIObjectProxy.h"
 #include "../globals.h"
 #include "../utils.h"
+#include "../proxy_utils.h"
+#include "DXGIAdapterProxy.h"
+#include "DXGISwapChainProxy.h"
 
 HRESULT DXGIFactoryProxy::QueryInterface(REFIID riid, void **ppvObject)
 {
@@ -20,7 +20,7 @@ HRESULT DXGIFactoryProxy::QueryInterface(REFIID riid, void **ppvObject)
     HRESULT hr = _factory->QueryInterface(riid, ppvObject);
     if (SUCCEEDED(hr))
     {
-        DXGIFactoryProxy::QueryProxy(riid, ppvObject);
+        QueryProxy(riid, ppvObject, this);
     }
 
     return hr;
@@ -62,7 +62,7 @@ HRESULT DXGIFactoryProxy::GetParent(REFIID riid, void **ppParent)
     HRESULT hr = _factory->GetParent(riid, ppParent);
     if (SUCCEEDED(hr))
     {
-        DXGIObjectProxy::QueryProxy(riid, ppParent);
+        QueryProxy(riid, ppParent);
     }
 
     return hr;
@@ -75,7 +75,7 @@ HRESULT DXGIFactoryProxy::EnumAdapters(UINT Adapter, IDXGIAdapter **ppAdapter)
     HRESULT hr = _factory->EnumAdapters(Adapter, ppAdapter);
     if (SUCCEEDED(hr))
     {
-        *ppAdapter = static_cast<IDXGIAdapter *>(GetProxyFor<DXGIAdapterProxy>(*ppAdapter));
+        *ppAdapter = GetProxyFor<DXGIAdapterProxy>(*ppAdapter);
     }
     return hr;
 }
@@ -418,7 +418,7 @@ HRESULT DXGIFactoryProxy::EnumAdapterByLuid(LUID AdapterLuid, REFIID riid, void 
         HRESULT hr = _factory4->EnumAdapterByLuid(AdapterLuid, riid, ppvAdapter);
         if (SUCCEEDED(hr))
         {
-            DXGIAdapterProxy::QueryProxy(riid, ppvAdapter);
+            QueryProxy(riid, ppvAdapter);
         }
         return hr;
     }

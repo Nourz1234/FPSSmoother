@@ -1,8 +1,8 @@
 #pragma once
 #include <dxgi1_6.h>
-#include "../utils.h"
+#include "ProxyBase.h"
 
-class DXGIAdapterProxy : public IDXGIAdapter4
+class DXGIAdapterProxy : public IDXGIAdapter4, public ProxyBase
 {
     IDXGIAdapter *_adapter = nullptr;
     IDXGIAdapter1 *_adapter1 = nullptr;
@@ -27,7 +27,7 @@ public:
     {
     }
 
-    static inline void QueryProxy(REFIID riid, void **ppvObject);
+    virtual void CopyTo(ProxyBase *other) override {}
 
     // Inherited via IDXGIAdapter4
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;

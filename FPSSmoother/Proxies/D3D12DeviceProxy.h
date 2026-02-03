@@ -1,8 +1,8 @@
 #pragma once
 #include <d3d12.h>
-#include "../utils.h"
+#include "ProxyBase.h"
 
-class D3D12DeviceProxy : public ID3D12Device9
+class D3D12DeviceProxy : public ID3D12Device9, public ProxyBase
 {
     ID3D12Device *_device = nullptr;
     ID3D12Device1 *_device1 = nullptr;
@@ -47,21 +47,7 @@ public:
     {
     }
 
-    static inline void QueryProxy(REFIID riid, void **ppvObject)
-    {
-        ProxyHelper proxyHelper;
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device1>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device2>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device3>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device4>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device5>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device6>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device7>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device8>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<D3D12DeviceProxy, ID3D12Device9>(riid, ppvObject);
-        proxyHelper.AndThankYou(riid, ppvObject);
-    }
+    virtual void CopyTo(ProxyBase *other) override {}
 
     // Inherited via ID3D12Device9
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;

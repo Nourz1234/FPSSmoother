@@ -1,13 +1,14 @@
 #include "DXGIObjectProxy.h"
 #include "../globals.h"
 #include "../utils.h"
+#include "../proxy_utils.h"
 
 HRESULT DXGIObjectProxy::QueryInterface(REFIID riid, void **ppvObject)
 {
     HRESULT hr = _object->QueryInterface(riid, ppvObject);
     if (SUCCEEDED(hr))
     {
-        DXGIObjectProxy::QueryProxy(riid, ppvObject);
+        QueryProxy(riid, ppvObject, this);
     }
 
     return hr;

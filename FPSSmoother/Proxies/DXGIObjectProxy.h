@@ -1,8 +1,8 @@
 #pragma once
 #include <dxgi.h>
-#include "../utils.h"
+#include "ProxyBase.h"
 
-class DXGIObjectProxy : public IDXGIObject
+class DXGIObjectProxy : public IDXGIObject, public ProxyBase
 {
     IDXGIObject *_object = nullptr;
 
@@ -11,12 +11,7 @@ public:
     {
     }
 
-    static inline void QueryProxy(REFIID riid, void **ppvObject)
-    {
-        ProxyHelper proxyHelper;
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIObjectProxy, IDXGIObject>(riid, ppvObject);
-        proxyHelper.AndThankYou(riid, ppvObject);
-    }
+    virtual void CopyTo(ProxyBase *other) override {}
 
     // Inherited via IDXGIObject
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;

@@ -1,8 +1,8 @@
 #pragma once
 #include <dxgi1_6.h>
-#include "../utils.h"
+#include "ProxyBase.h"
 
-class DXGIFactoryProxy : public IDXGIFactory7
+class DXGIFactoryProxy : public IDXGIFactory7, public ProxyBase
 {
     IDXGIFactory *_factory = nullptr;
     IDXGIFactory1 *_factory1 = nullptr;
@@ -39,19 +39,7 @@ public:
     {
     }
 
-    static inline void QueryProxy(REFIID riid, void **ppvObject)
-    {
-        ProxyHelper proxyHelper;
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory1>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory2>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory3>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory4>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory5>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory6>(riid, ppvObject);
-        proxyHelper.TryGetProxyForThisInterfaceForMePwease<DXGIFactoryProxy, IDXGIFactory7>(riid, ppvObject);
-        proxyHelper.AndThankYou(riid, ppvObject);
-    }
+    virtual void CopyTo(ProxyBase *other) override {}
 
     // Inherited via IDXGIFactory7
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;
