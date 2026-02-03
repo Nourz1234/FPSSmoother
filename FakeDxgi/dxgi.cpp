@@ -3,6 +3,7 @@
 
 #include "FPSSmoother/utils.h"
 #include "FPSSmoother/proxy_utils.h"
+#include "PatchJmp/PatchJmp.h"
 
 #define DXGI_DLL_PATH "C:\\Windows\\System32\\dxgi.dll"
 
@@ -26,45 +27,55 @@ EXTERN_C void WINAPI SetAppCompatStringPointer(size_t cchString, const char *psz
     return;
 }
 
-typedef HRESULT WINAPI CreateDXGIFactoryProc(REFIID riid, _Out_ void **ppFactory);
+using CreateDXGIFactoryProc = decltype(&CreateDXGIFactory);
+CreateDXGIFactoryProc RealCreateDXGIFactory = nullptr;
+undo_patch *g_CreateDXGIFactory_UndoPatch;
 
-HRESULT WINAPI CreateDXGIFactory(REFIID riid, _Out_ void **ppFactory)
+EXTERN_C HRESULT WINAPI FakeCreateDXGIFactory(REFIID riid, _Out_ void **ppFactory)
 {
-    inc_dbg_level(L"CreateDXGIFactory");
+    inc_dbg_level(L"FakeCreateDXGIFactory");
 
-    static CreateDXGIFactoryProc *RealCreateDXGIFactory = (CreateDXGIFactoryProc *)GetProcAddress2(DXGI_DLL_PATH, "CreateDXGIFactory");
+    UndoPatch(g_CreateDXGIFactory_UndoPatch);
 
     HRESULT hr = RealCreateDXGIFactory(riid, ppFactory);
     if (SUCCEEDED(hr))
     {
         QueryProxy(riid, ppFactory);
     }
+
+    g_CreateDXGIFactory_UndoPatch = PatchAddress((LPVOID)RealCreateDXGIFactory, (LPVOID)FakeCreateDXGIFactory);
     return hr;
 }
 
-typedef HRESULT WINAPI CreateDXGIFactory1Proc(REFIID riid, _Out_ void **ppFactory);
+using CreateDXGIFactory1Proc = decltype(&CreateDXGIFactory1);
+CreateDXGIFactory1Proc RealCreateDXGIFactory1 = nullptr;
+undo_patch *g_CreateDXGIFactory1_UndoPatch;
 
-HRESULT WINAPI CreateDXGIFactory1(REFIID riid, _Out_ void **ppFactory)
+EXTERN_C HRESULT WINAPI FakeCreateDXGIFactory1(REFIID riid, _Out_ void **ppFactory)
 {
-    inc_dbg_level(L"CreateDXGIFactory1");
+    inc_dbg_level(L"FakeCreateDXGIFactory1");
 
-    static CreateDXGIFactory1Proc *RealCreateDXGIFactory1 = (CreateDXGIFactory1Proc *)GetProcAddress2(DXGI_DLL_PATH, "CreateDXGIFactory1");
+    UndoPatch(g_CreateDXGIFactory1_UndoPatch);
 
     HRESULT hr = RealCreateDXGIFactory1(riid, ppFactory);
     if (SUCCEEDED(hr))
     {
         QueryProxy(riid, ppFactory);
     }
+
+    g_CreateDXGIFactory1_UndoPatch = PatchAddress((LPVOID)RealCreateDXGIFactory1, (LPVOID)FakeCreateDXGIFactory1);
     return hr;
 }
 
-typedef HRESULT WINAPI CreateDXGIFactory2Proc(UINT Flags, REFIID riid, _Out_ void **ppFactory);
+using CreateDXGIFactory2Proc = decltype(&CreateDXGIFactory2);
+CreateDXGIFactory2Proc RealCreateDXGIFactory2 = nullptr;
+undo_patch *g_CreateDXGIFactory2_UndoPatch;
 
-HRESULT WINAPI CreateDXGIFactory2(UINT Flags, REFIID riid, _Out_ void **ppFactory)
+EXTERN_C HRESULT WINAPI FakeCreateDXGIFactory2(UINT Flags, REFIID riid, _Out_ void **ppFactory)
 {
-    inc_dbg_level(L"CreateDXGIFactory2");
+    inc_dbg_level(L"FakeCreateDXGIFactory2");
 
-    static CreateDXGIFactory2Proc *RealCreateDXGIFactory2 = (CreateDXGIFactory2Proc *)GetProcAddress2(DXGI_DLL_PATH, "CreateDXGIFactory2");
+    UndoPatch(g_CreateDXGIFactory2_UndoPatch);
 
     HRESULT hr = RealCreateDXGIFactory2(Flags, riid, ppFactory);
     if (SUCCEEDED(hr))
@@ -80,6 +91,8 @@ HRESULT WINAPI CreateDXGIFactory2(UINT Flags, REFIID riid, _Out_ void **ppFactor
             QueryProxy(riid, ppFactory);
         }
     }
+
+    g_CreateDXGIFactory2_UndoPatch = PatchAddress((LPVOID)RealCreateDXGIFactory2, (LPVOID)FakeCreateDXGIFactory2);
     return hr;
 }
 
@@ -96,6 +109,14 @@ HRESULT WINAPI DXGIGetDebugInterface1(UINT Flags, REFIID riid, _Out_ void **ppFa
 
 void DXGIMain()
 {
+    RealCreateDXGIFactory = (CreateDXGIFactoryProc)GetProcAddress2(DXGI_DLL_PATH, "CreateDXGIFactory");
+    RealCreateDXGIFactory1 = (CreateDXGIFactory1Proc)GetProcAddress2(DXGI_DLL_PATH, "CreateDXGIFactory1");
+    RealCreateDXGIFactory2 = (CreateDXGIFactory2Proc)GetProcAddress2(DXGI_DLL_PATH, "CreateDXGIFactory2");
+
+    g_CreateDXGIFactory_UndoPatch = PatchAddress((LPVOID)RealCreateDXGIFactory, (LPVOID)FakeCreateDXGIFactory);
+    g_CreateDXGIFactory1_UndoPatch = PatchAddress((LPVOID)RealCreateDXGIFactory1, (LPVOID)FakeCreateDXGIFactory1);
+    g_CreateDXGIFactory2_UndoPatch = PatchAddress((LPVOID)RealCreateDXGIFactory2, (LPVOID)FakeCreateDXGIFactory2);
+
     // this is important as without this, compatibility options are not passed to the app!
     // eg. "Disable fullscreen optimizations" (and possibly other compatibility options) won't work.
     // SetAppCompatStringPointer is called before the dll is even loaded somehow?!?!? (WTF?)

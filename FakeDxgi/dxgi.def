@@ -1,7 +1,7 @@
 LIBRARY FakeDxgi
 EXPORTS
     SetAppCompatStringPointer
-    CreateDXGIFactory
-    CreateDXGIFactory1
-    CreateDXGIFactory2
+    CreateDXGIFactory = FakeCreateDXGIFactory
+    CreateDXGIFactory1 = FakeCreateDXGIFactory1
+    CreateDXGIFactory2 = FakeCreateDXGIFactory2
     DXGIGetDebugInterface1

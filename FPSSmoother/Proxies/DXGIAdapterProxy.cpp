@@ -71,11 +71,10 @@ HRESULT DXGIAdapterProxy::EnumOutputs(UINT Output, IDXGIOutput **ppOutput)
     inc_dbg_level(L"DXGIAdapterProxy::EnumOutputs");
 
     HRESULT hr = _adapter->EnumOutputs(Output, ppOutput);
-    if (SUCCEEDED(hr))
-    {
-        *ppOutput = GetProxyFor<DXGIOutputProxy>(*ppOutput);
-    }
-
+    // if (SUCCEEDED(hr))
+    // {
+    //     *ppOutput = GetProxyFor<DXGIOutputProxy>(*ppOutput);
+    // }
     return hr;
 }
 
