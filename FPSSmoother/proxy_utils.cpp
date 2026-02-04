@@ -74,9 +74,3 @@ bool QueryProxy(REFIID riid, void **ppvObject)
     proxyHelper.AndThankYou(riid, ppvObject);
     return proxyHelper.UwU();
 }
-
-void QueryProxy(REFIID riid, void **ppvObject, ProxyBase *proxy)
-{
-    if (QueryProxy(riid, ppvObject))
-        proxy->CopyTo((ProxyBase *)*ppvObject);
-}

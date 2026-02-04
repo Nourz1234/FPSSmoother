@@ -53,6 +53,7 @@ void syncFrame()
 void DXGISwapChainProxy::EnableD3D12MaximumFrameLatencyHandling()
 {
     inc_dbg_level(L"DXGISwapChainProxy::EnableD3D12MaximumFrameLatencyHandling");
+
     _handleD3D12MaximumFrameLatency = true;
 
     IDXGISwapChain2 *swapChain2;
@@ -67,6 +68,8 @@ void DXGISwapChainProxy::EnableD3D12MaximumFrameLatencyHandling()
 
 void DXGISwapChainProxy::ApplyMaximumFrameLatency()
 {
+    inc_dbg_level(L"DXGISwapChainProxy::ApplyMaximumFrameLatency");
+
     IDXGISwapChain2 *swapChain2;
     HRESULT hr = _swapChain->QueryInterface(&swapChain2);
     if (SUCCEEDED(hr))
@@ -155,7 +158,7 @@ HRESULT DXGISwapChainProxy::Present(UINT SyncInterval, UINT Flags)
         syncFrame();
 
     if (_frameLatencyWaitHandle)
-        WaitForSingleObjectEx(_frameLatencyWaitHandle, 0, TRUE);
+        WaitForSingleObjectEx(_frameLatencyWaitHandle, 1000, TRUE);
 
     HRESULT hr = _swapChain->Present(SyncInterval, Flags);
 
@@ -292,7 +295,7 @@ HRESULT DXGISwapChainProxy::Present1(UINT SyncInterval, UINT PresentFlags, const
             syncFrame();
 
         if (_frameLatencyWaitHandle)
-            WaitForSingleObjectEx(_frameLatencyWaitHandle, INFINITE, TRUE);
+            WaitForSingleObjectEx(_frameLatencyWaitHandle, 1000, TRUE);
 
         HRESULT hr = _swapChain1->Present1(SyncInterval, PresentFlags, pPresentParameters);
 

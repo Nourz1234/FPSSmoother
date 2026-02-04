@@ -5,6 +5,14 @@
 
 HRESULT DXGIObjectProxy::QueryInterface(REFIID riid, void **ppvObject)
 {
+    inc_dbg_level(L"DXGIObjectProxy::QueryInterface");
+
+    if (IsEqualIID(riid, IID_GetSelf))
+    {
+        *ppvObject = this;
+        return S_OK;
+    }
+
     HRESULT hr = _object->QueryInterface(riid, ppvObject);
     if (SUCCEEDED(hr))
     {
