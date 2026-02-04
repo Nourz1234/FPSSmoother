@@ -1,8 +1,7 @@
 #pragma once
 #include <dxgi1_6.h>
-#include "ProxyBase.h"
 
-class DXGIFactoryProxy : public IDXGIFactory7, public ProxyBase
+class DXGIFactoryProxy : public IDXGIFactory7
 {
     IDXGIFactory *_factory = nullptr;
     IDXGIFactory1 *_factory1 = nullptr;
@@ -38,8 +37,6 @@ public:
     DXGIFactoryProxy(IDXGIFactory7 *factory) : _factory(factory), _factory1(factory), _factory2(factory), _factory3(factory), _factory4(factory), _factory5(factory), _factory6(factory), _factory7(factory)
     {
     }
-
-    virtual void CopyTo(ProxyBase *other) override {}
 
     // Inherited via IDXGIFactory7
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;

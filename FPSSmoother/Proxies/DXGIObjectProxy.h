@@ -1,8 +1,7 @@
 #pragma once
 #include <dxgi.h>
-#include "ProxyBase.h"
 
-class DXGIObjectProxy : public IDXGIObject, public ProxyBase
+class DXGIObjectProxy : public IDXGIObject
 {
     IDXGIObject *_object = nullptr;
 
@@ -10,8 +9,6 @@ public:
     DXGIObjectProxy(IDXGIObject *object) : _object(object)
     {
     }
-
-    virtual void CopyTo(ProxyBase *other) override {}
 
     // Inherited via IDXGIObject
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;

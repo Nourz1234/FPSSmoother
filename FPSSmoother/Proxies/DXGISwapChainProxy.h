@@ -1,8 +1,8 @@
 #pragma once
 #include <dxgi1_6.h>
-#include "ProxyBase.h"
+#include "ICloneable.h"
 
-class DXGISwapChainProxy : public IDXGISwapChain4, public ProxyBase
+class DXGISwapChainProxy : public IDXGISwapChain4, public ICloneable<DXGISwapChainProxy>
 {
     IDXGISwapChain *_swapChain = nullptr;
     IDXGISwapChain1 *_swapChain1 = nullptr;
@@ -30,7 +30,7 @@ public:
     {
     }
 
-    virtual void CopyTo(ProxyBase *other) override
+    virtual void CopyTo(DXGISwapChainProxy *other) override
     {
         DXGISwapChainProxy *proxy = dynamic_cast<DXGISwapChainProxy *>(other);
         if (proxy)

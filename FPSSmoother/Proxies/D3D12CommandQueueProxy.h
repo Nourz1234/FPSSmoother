@@ -1,8 +1,7 @@
 #pragma once
 #include <d3d12.h>
-#include "ProxyBase.h"
 
-class D3D12CommandQueueProxy : public ID3D12CommandQueue, public ProxyBase
+class D3D12CommandQueueProxy : public ID3D12CommandQueue
 {
     ID3D12CommandQueue *_queue = nullptr;
 
@@ -10,8 +9,6 @@ public:
     D3D12CommandQueueProxy(ID3D12CommandQueue *queue) : _queue(queue)
     {
     }
-
-    virtual void CopyTo(ProxyBase *other) override {}
 
     // Inherited via ID3D12CommandQueue
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;

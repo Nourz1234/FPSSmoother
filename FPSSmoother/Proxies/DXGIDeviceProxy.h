@@ -1,8 +1,7 @@
 #pragma once
 #include <dxgi1_6.h>
-#include "ProxyBase.h"
 
-class DXGIDeviceProxy : public IDXGIDevice4, public ProxyBase
+class DXGIDeviceProxy : public IDXGIDevice4
 {
     IDXGIDevice *_device = nullptr;
     IDXGIDevice1 *_device1 = nullptr;
@@ -26,8 +25,6 @@ public:
     DXGIDeviceProxy(IDXGIDevice4 *device) : _device(device), _device1(device), _device2(device), _device3(device), _device4(device)
     {
     }
-
-    virtual void CopyTo(ProxyBase *other) override {}
 
     // Inherited via IDXGIDevice4
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;

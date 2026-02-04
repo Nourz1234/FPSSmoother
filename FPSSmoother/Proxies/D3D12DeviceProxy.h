@@ -1,8 +1,7 @@
 #pragma once
 #include <d3d12.h>
-#include "ProxyBase.h"
 
-class D3D12DeviceProxy : public ID3D12Device9, public ProxyBase
+class D3D12DeviceProxy : public ID3D12Device9
 {
     ID3D12Device *_device = nullptr;
     ID3D12Device1 *_device1 = nullptr;
@@ -46,8 +45,6 @@ public:
     D3D12DeviceProxy(ID3D12Device9 *device) : _device(device), _device1(device), _device2(device), _device3(device), _device4(device), _device5(device), _device6(device), _device7(device), _device8(device), _device9(device)
     {
     }
-
-    virtual void CopyTo(ProxyBase *other) override {}
 
     // Inherited via ID3D12Device9
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;

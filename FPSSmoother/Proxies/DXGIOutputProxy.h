@@ -1,8 +1,7 @@
 #pragma once
 #include <dxgi1_6.h>
-#include "ProxyBase.h"
 
-class DXGIOutputProxy : public IDXGIOutput6, public ProxyBase
+class DXGIOutputProxy : public IDXGIOutput6
 {
     IDXGIOutput *_output = nullptr;
     IDXGIOutput1 *_output1 = nullptr;
@@ -34,8 +33,6 @@ public:
     DXGIOutputProxy(IDXGIOutput6 *output) : _output(output), _output1(output), _output2(output), _output3(output), _output4(output), _output5(output), _output6(output)
     {
     }
-
-    virtual void CopyTo(ProxyBase *other) override {}
 
     // Inherited via IDXGIOutput6
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override;
