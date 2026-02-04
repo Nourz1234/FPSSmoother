@@ -32,12 +32,8 @@ public:
 
     virtual void CopyTo(DXGISwapChainProxy *other) override
     {
-        DXGISwapChainProxy *proxy = dynamic_cast<DXGISwapChainProxy *>(other);
-        if (proxy)
-        {
-            proxy->_handleD3D12MaximumFrameLatency = _handleD3D12MaximumFrameLatency;
-            proxy->_frameLatencyWaitHandle = _frameLatencyWaitHandle;
-        }
+        other->_handleD3D12MaximumFrameLatency = _handleD3D12MaximumFrameLatency;
+        other->_frameLatencyWaitHandle = _frameLatencyWaitHandle;
     }
 
     void EnableD3D12MaximumFrameLatencyHandling();
